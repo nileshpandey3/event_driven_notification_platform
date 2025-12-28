@@ -1,1 +1,8 @@
 fastapi
+pydantic
+boto3
+pyjwt
+requests
+Authlib
+python-dotenv
+starlette
