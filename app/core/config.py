@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv()  # MUST be first
+load_dotenv()
 
 def required(name: str):
     value = os.getenv(name)

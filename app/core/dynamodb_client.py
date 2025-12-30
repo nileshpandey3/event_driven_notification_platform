@@ -12,5 +12,3 @@ def get_dynamodb_resource():
         )
     return _dynamodb
 
-def get_notifications_table():
-    return get_dynamodb_resource().Table(settings.DDB_TABLE_NAME)
