@@ -1,20 +1,20 @@
-# Pydantic schema for request/response validations
+# Pydantic schema for basic request/response validations
 
 from pydantic import BaseModel
-from typing import Optional
 
 class PreferencesBase(BaseModel):
-    email: bool
-    sms: bool
-    push: bool
+    # TODO: Write validation
+    pass
 
 class PreferencesCreate(PreferencesBase):
+    # TODO: Write validation
     pass
 
 class PreferencesUpdate(BaseModel):
-    email: Optional[bool] = None
-    sms: Optional[bool] = None
-    push: Optional[bool] = None
+    # TODO: Write validation
+    pass
 
-class PreferencesResponse(PreferencesBase):
-    user_id: str
+
+
+
+

@@ -12,15 +12,3 @@ def get_dynamodb_resource():
             region_name=AWS_REGION,
         )
     return _dynamodb
-
-"""
-app/
-    api/
-        v1/
-            preferences/
-                models.py
-                repository.py
-                routes.py
-                schemas.py
-                service.py
-"""

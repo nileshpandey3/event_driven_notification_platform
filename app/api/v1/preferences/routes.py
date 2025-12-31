@@ -10,16 +10,25 @@ router = APIRouter(prefix="/preferences", tags=['preferences'], dependencies=[De
 
 @router.post("/")
 def create_preferences(user=Depends(get_current_user)):
+    # TODO: Add the logic for the api
+    # return {result: any_test_response}
     pass
 
 @router.put("/")
 def update_preferences(user=Depends(get_current_user)):
+    # TODO: Add the logic for the api
+    # return {result: any_test_response}
     pass
+
 
 @router.get("/")
 def get_preferences(user=Depends(get_current_user)):
+    # TODO: Add the logic for the api
+    # return {result: any_test_response}
     pass
 
 @router.delete("/")
 def remove_preferences(user=Depends(get_current_user)):
+    # TODO: Add the logic for the api
+    # return {result: any_test_response}
     pass
