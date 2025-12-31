@@ -7,3 +7,5 @@ Authlib
 python-dotenv
 starlette
 python-jose
+hiredis==3.3.0
+redis==7.1.0

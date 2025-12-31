@@ -1,11 +1,20 @@
+# Pydantic schema for request/response validations
+
 from pydantic import BaseModel
-from typing import Dict
+from typing import Optional
 
-class PreferencesRequest(BaseModel):
-    default_channel: Dict[str, bool]
-    notification_type: Dict[str, bool]
-    mandatory: bool
+class PreferencesBase(BaseModel):
+    email: bool
+    sms: bool
+    push: bool
 
+class PreferencesCreate(PreferencesBase):
+    pass
 
-class PreferencesResponse(PreferencesRequest):
+class PreferencesUpdate(BaseModel):
+    email: Optional[bool] = None
+    sms: Optional[bool] = None
+    push: Optional[bool] = None
+
+class PreferencesResponse(PreferencesBase):
     user_id: str

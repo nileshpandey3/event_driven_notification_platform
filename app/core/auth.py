@@ -1,13 +1,12 @@
-from fastapi import Depends
+import ipdb
 from fastapi import Header, HTTPException
-from jose import jwt, jwk, JWTError
+from jose import jwt, JWTError
 
 from app.core.config import AUTH0_AUDIENCE
 import jwt
 import requests
 from app.core.config import AUTH0_DOMAIN, ALGORITHMS
-
-
+from app.core.redis_client import redis_client
 
 
 def get_rsa_key(kid: str):
@@ -52,8 +51,6 @@ def verify_jwt(authorization: str = Header(...)):
 
         public_key = jwt.algorithms.RSAAlgorithm.from_jwk(rsa_key)
 
-
-        # Decode token WITHOUT audience first
         payload = jwt.decode(
             token,
             public_key,
@@ -61,6 +58,11 @@ def verify_jwt(authorization: str = Header(...)):
             audience=AUTH0_AUDIENCE,
             issuer=f"https://{AUTH0_DOMAIN}/"
         )
+        user_id = payload["sub"]
+        session_token = redis_client.get(f"user:{user_id}:access_token")
+        if not session_token:
+            raise HTTPException(status_code=401, detail="Session expired or logged out")
+
 
     except JWTError as e:
         print(e)
@@ -68,6 +70,3 @@ def verify_jwt(authorization: str = Header(...)):
 
     return payload
 
-
-def get_current_user(payload=Depends(verify_jwt)):
-    return payload
