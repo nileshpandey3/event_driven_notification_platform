@@ -1,3 +1,5 @@
+"""Module providing all the routes for the /preferences api."""
+
 from urllib.parse import urlencode
 from fastapi import Request, APIRouter, Depends
 
@@ -5,7 +7,8 @@ import requests
 from jose import jwt
 from starlette.responses import RedirectResponse
 
-from app.core.config import AUTH0_AUDIENCE, AUTH0_CLIENT_ID, AUTH0_DOMAIN, REDIRECT_URI, AUTH0_CLIENT_SECRET
+from app.core.config import (AUTH0_AUDIENCE, AUTH0_CLIENT_ID, AUTH0_DOMAIN,
+                             REDIRECT_URI, AUTH0_CLIENT_SECRET)
 from app.core.redis_client import redis_client
 from app.api.v1.dependencies import get_current_user
 

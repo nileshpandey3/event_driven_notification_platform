@@ -13,8 +13,3 @@ class PreferencesCreate(PreferencesBase):
 class PreferencesUpdate(BaseModel):
     # TODO: Write validation
     pass
-
-
-
-
-

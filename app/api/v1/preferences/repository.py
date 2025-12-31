@@ -14,6 +14,5 @@ class PreferencesRepository:
         self.table = table
 
     def upsert_preferences(self, user_id: str, data: dict):
-        # TODO: logic to add preferences for users
+        # TODO: logic to add preferences in ddb table for users
         pass
-
