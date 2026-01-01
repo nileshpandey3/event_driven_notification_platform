@@ -30,3 +30,13 @@ Example design for one of the API's `/preferences`
     
 ### TODO: Explain the Project structure and flow 
 ### TODO: Explain how to test?
+
+### Linting and Formatting
+RUN 
+```bash
+
+pylint app infrastructure 
+
+--------------------------------------------------------------------
+Your code has been rated at 10.00/10 (previous run: 10.00/10, +0.00)
+```
