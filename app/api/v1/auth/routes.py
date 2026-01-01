@@ -1,4 +1,4 @@
-"""Module providing all the routes for the /preferences api."""
+"""Module providing authentication routes for all the protected endpoints."""
 
 from urllib.parse import urlencode
 from fastapi import Request, APIRouter, Depends
@@ -16,6 +16,9 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.get("/login")
 def login():
+    """
+    Authenticating the user by redirecting the user to AUTH0 Identity Provider
+    """
     params = {
         "audience": AUTH0_AUDIENCE,
         "scope": "openid profile email",
@@ -28,6 +31,9 @@ def login():
 
 @router.get("/callback")
 def auth_callback(request: Request):
+    """
+    Exchange the authorization Code received from the auth login for access(Bearer) tokens.
+    """
     code = request.query_params.get("code")
     if not code:
         return {"error": "No code provided"}
@@ -49,7 +55,7 @@ def auth_callback(request: Request):
     # We need user_id as a key in the redis store
     payload = jwt.get_unverified_claims(id_token)
     user_id = payload["sub"]
-    print(access_token)
+
     # Store access_token in Redis with TTL 1 hour
     redis_client.set(f"user:{user_id}:access_token", access_token, ex=3600)
 
@@ -57,5 +63,6 @@ def auth_callback(request: Request):
 
 @router.post("/logout")
 def logout(user_id: str = Depends(get_current_user)):
+    # Logout and clear the client session
     redis_client.delete(f"session:{user_id}")
     return {"message": "Logged out successfully"}

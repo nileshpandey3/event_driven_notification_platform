@@ -10,3 +10,5 @@ python-jose
 hiredis
 redis
 pylint
+
+pytest

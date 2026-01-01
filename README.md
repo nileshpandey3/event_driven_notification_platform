@@ -1,4 +1,4 @@
-## event_driven_notification_platform
+## Event Driven Notifications Platform
 A unified, reliable mechanism for delivering user notifications from across different services with minimum latency
 
 ### REST API DESIGN
@@ -16,7 +16,17 @@ Example design for one of the API's `/preferences`
 - That access token will be stored in the Redis key-value store to be used for longer session usage with a TTL of 1 hour
 - Then the `def get_current_user()` will return the authenticated user which will be used via dependency injection in all API requests
 
+
+
+### TECH STACK
+
+- FastAPI for building REST Endpoints
+- AUTH0 for auth identity provider
+- Redis as a credential store
+- AWS DynamoDB as the data store
+- Kafka as event streaming messaging system
+- #TODO: Add more as we develop
+
     
 ### TODO: Explain the Project structure and flow 
-### TODO: Explain the tech stack used
-### TODO: Explain how to test
+### TODO: Explain how to test?
