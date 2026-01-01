@@ -56,8 +56,8 @@ def auth_callback(request: Request):
 
     # Store access_token in Redis with TTL 1 hour
     redis_client.set(f"user:{user_id}:access_token", access_token, ex=3600)
-
-    return {"message": "Auth Login successful", "user_id": user_id}
+    print(access_token)
+    return {"message": "Auth Login successful"}
 
 @router.post("/logout")
 def logout(user_id: str = Depends(get_current_user)):

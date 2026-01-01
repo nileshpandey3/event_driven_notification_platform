@@ -11,19 +11,19 @@ router = APIRouter(prefix="/preferences", tags=['preferences'], dependencies=[De
 @router.post("/")
 def create_preferences(user=Depends(get_current_user)):
     # TODO: Add the logic for the api
-    print("Successful create")
+    return "Testing: Successful Create response"
 
 @router.put("/")
 def update_preferences(user=Depends(get_current_user)):
     # TODO: Add the logic for the api
-    print("Successful update")
+    return "Testing: Successful Put response"
 
 @router.get("/")
 def get_preferences(user=Depends(get_current_user)):
     # TODO: Add the logic for the api
-    print("Successful get")
+    return "Testing: Successful get response"
 
 @router.delete("/")
 def remove_preferences(user=Depends(get_current_user)):
     # TODO: Add the logic for the api
-    print("Successful delete")
+    return "Testing: Successful Delete response"
