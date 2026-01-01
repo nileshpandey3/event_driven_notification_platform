@@ -1,5 +1,3 @@
-"""Module providing authentication routes for all the protected endpoints."""
-
 from urllib.parse import urlencode
 from fastapi import Request, APIRouter, Depends
 
