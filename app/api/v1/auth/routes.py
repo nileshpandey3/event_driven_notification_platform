@@ -1,65 +1,50 @@
-from urllib.parse import urlencode
-from fastapi import Request, APIRouter, Depends
+"""
+Module to handle user authentication for calling the protected endpoints
+"""
 
-import requests
-from jose import jwt
-from starlette.responses import RedirectResponse
+import datetime
+from datetime import timedelta
 
-from app.core.config import (AUTH0_AUDIENCE, AUTH0_CLIENT_ID, AUTH0_DOMAIN,
-                             REDIRECT_URI, AUTH0_CLIENT_SECRET)
+from fastapi import APIRouter, Depends, HTTPException
+
+from app.api.v1.preferences.schemas import LoginRequest
+from app.core.auth import create_access_token, get_current_user
+from app.core.config import USERNAME, PASSWORD, ACCESS_TOKEN_EXPIRE_MINUTES
 from app.core.redis_client import redis_client
-from app.api.v1.dependencies import get_current_user
+
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-@router.get("/login")
-def login():
+
+@router.post("/login")
+def login(data: LoginRequest):
     """
-    Authenticating the user by redirecting the user to AUTH0 Identity Provider
+    Perform a simple auth flow with a pre-stored user and issue an access token
     """
-    params = {
-        "audience": AUTH0_AUDIENCE,
-        "scope": "openid profile email",
-        "response_type": "code",
-        "client_id": AUTH0_CLIENT_ID,
-        "redirect_uri": REDIRECT_URI,
+    if data.username != USERNAME and data.password != PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid Username or Password")
+
+    payload = {
+        "sub": data.username,
+        "exp": datetime.datetime.utcnow()
+        + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     }
-    url = f"https://{AUTH0_DOMAIN}/authorize?" + urlencode(params)
-    return RedirectResponse(url)
-
-@router.get("/callback")
-def auth_callback(request: Request):
-    """
-    Exchange the authorization Code received from the auth login for access(Bearer) tokens.
-    """
-    code = request.query_params.get("code")
-    if not code:
-        return {"error": "No code provided"}
-
-    # Exchange code for tokens
-    token_url = f"https://{AUTH0_DOMAIN}/oauth/token"
-    data = {
-        "grant_type": "authorization_code",
-        "client_id": AUTH0_CLIENT_ID,
-        "client_secret": AUTH0_CLIENT_SECRET,
-        "code": code,
-        "redirect_uri": REDIRECT_URI
-    }
-    response = requests.post(token_url, json=data)
-    tokens = response.json()
-    access_token = tokens.get("access_token")
-    id_token = tokens.get("id_token")
-
-    # We need user_id as a key in the redis store
-    payload = jwt.get_unverified_claims(id_token)
     user_id = payload["sub"]
 
-    # Store access_token in Redis with TTL 1 hour
+    access_token = create_access_token(payload)
+
     redis_client.set(f"user:{user_id}:access_token", access_token, ex=3600)
-    return {"message": "Auth Login successful"}
+    return {
+        "message": "Auth Login successful",
+        "access_token": access_token,
+        "token_type": "bearer",
+    }
+
 
 @router.post("/logout")
 def logout(user_id: str = Depends(get_current_user)):
-    # Logout and clear the client session
+    """
+    Logout and clear the client session
+    """
     redis_client.delete(f"session:{user_id}")
     return {"message": "Logged out successfully"}

@@ -1,72 +1,40 @@
-from fastapi import Header, HTTPException
+"""
+Create and Decode Bearer Auth Token to authenticate a user for making API requests
+"""
+
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 
-from app.core.config import AUTH0_AUDIENCE
-import jwt
-import requests
-from app.core.config import AUTH0_DOMAIN, ALGORITHMS
-from app.core.redis_client import redis_client
+from app.core.config import SECRET_KEY, ALGORITHMS
 
 
-def get_rsa_key(kid: str):
+def create_access_token(payload: dict):
     """
-    Fetch the JWKS from Auth0 and return the RSA key matching the kid
+    Create a temp access token for a valid user
     """
-    jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
-    jwks = requests.get(jwks_url).json()
-    for key in jwks["keys"]:
-        if key["kid"] == kid:
-            return {
-                "kty": key["kty"],
-                "kid": key["kid"],
-                "use": key["use"],
-                "n": key["n"],
-                "e": key["e"],
-            }
-    return None
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHMS)
 
-def verify_jwt(authorization: str = Header(...)):
+
+security = HTTPBearer()
+
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """
-    Verifies the JWT from the Authorization header.
-    Returns the decoded payload if valid.
-    Raises HTTPException if invalid.
+    Decode the access token in the request header and return the authenticated user
     """
+    token = credentials.credentials
 
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Invalid Authorization header")
-
-    token = authorization.replace("Bearer ", "").strip()
-    if not token:
-        raise HTTPException(status_code=401, detail="Token missing")
-
-    # Decode header to get kid
     try:
-        # Extract kid from token header
-        unverified_header = jwt.get_unverified_header(token)
-        rsa_key = get_rsa_key(unverified_header.get("kid"))
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHMS])
+        user = payload.get("sub")
 
-        if not rsa_key:
-            raise HTTPException(status_code=401, detail="Unable to find appropriate key")
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid token")
 
-        public_key = jwt.algorithms.RSAAlgorithm.from_jwk(rsa_key)
+        return user
 
-        payload = jwt.decode(
-            token,
-            public_key,
-            algorithms=ALGORITHMS,
-            audience=AUTH0_AUDIENCE,
-            issuer=f"https://{AUTH0_DOMAIN}/"
-        )
-        user_id = payload["sub"]
-        session_token = redis_client.get(f"user:{user_id}:access_token")
-        if not session_token:
-            raise HTTPException(status_code=401, detail="Session expired or logged out")
-
-
-    except JWTError as e:
-        print(e)
-        raise HTTPException(status_code=401, detail="Unable to parse authentication token")
-
-    return payload
-
-
+    except JWTError as exc:
+        raise HTTPException(
+            status_code=401, detail="Token verification failed"
+        ) from exc

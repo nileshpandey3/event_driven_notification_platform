@@ -1,8 +1,11 @@
+"""
+Module to aggregate all different API routes
+"""
 
 from fastapi import APIRouter
 
 from app.api.v1.preferences.routes import router as preferences_router
-from app.api.v1.auth.routes import  router as auth_router
+from app.api.v1.auth.routes import router as auth_router
 
 router = APIRouter()
 

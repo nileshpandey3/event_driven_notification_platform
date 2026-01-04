@@ -9,7 +9,7 @@ class TestPreferenceApi:
 
     @classmethod
     def setup_class(cls):
-        #TODO: write test setup
+        # TODO: write test setup
         pass
 
     @pytest.mark.create
@@ -30,6 +30,5 @@ class TestPreferenceApi:
 
     @classmethod
     def teardown_class(cls):
-        #TODO: teardown the setup
+        # TODO: teardown the setup
         pass
-
