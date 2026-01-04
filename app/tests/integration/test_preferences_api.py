@@ -1,3 +1,7 @@
+"""
+Integration tests for /preferences endpoint
+"""
+
 import pytest
 
 
@@ -9,26 +13,36 @@ class TestPreferenceApi:
 
     @classmethod
     def setup_class(cls):
-        # TODO: write test setup
-        pass
+        """
+        TODO: write test setup
+        """
 
     @pytest.mark.create
     def test_create(self):
-        pass
+        """
+        TODO: Write test logic
+        """
 
     @pytest.mark.read
     def test_read(self):
-        pass
+        """
+        TODO: Write test logic
+        """
 
     @pytest.mark.update
     def test_update(self):
-        pass
+        """
+        TODO: Write test logic
+        """
 
     @pytest.mark.delete
     def test_delete(self):
-        pass
+        """
+        TODO: Write test logic
+        """
 
     @classmethod
     def teardown_class(cls):
-        # TODO: teardown the setup
-        pass
+        """
+        TODO: teardown the setup
+        """

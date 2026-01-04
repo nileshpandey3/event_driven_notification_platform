@@ -5,22 +5,20 @@ A unified, reliable mechanism for delivering user notifications from across diff
 Example design for one of the API's `/preferences`
 ![rest_api_design_example](rest_api.jpg)
 
-#### AUTHENTICATION DESIGN & TOOLS FOR MAKING THE ENDPOINTS PROTECTED
+#### AUTHENTICATION DESIGN FOR MAKING THE ENDPOINTS PROTECTED
     
-- I have used AUTH0 as the authentication provider and Redis as the centralized credentials store
-- I have chosen to call the API from regular web apps using the Authorization Code Flow.
-- Ref: https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow/call-your-api-using-the-authorization-code-flow#request-tokens
-- So to verify this flow the first step is to GET http://localhost:8000/api/v1/auth/login 
-- Then an auth0 managed login page will open and a registered user will accept the login prompt 
-- Then they will be redirected back and the `def auth_callback()` function will exchange the code for an access token
-- That access token will be stored in the Redis key-value store to be used for longer session usage with a TTL of 1 hour
-- Then the `def get_current_user()` will return the authenticated user which will be used via dependency injection in all API requests
+- I have used `python-jose` lib as the authentication provider and Redis as the centralized credentials store
+- So to verify this flow the first step is to make a POST http://localhost:8000/api/v1/auth/login with a 
+{username:str, password:str} passed in the request body
+- If the username and password is of a valid existing user then 
+`def create_access_token()` will generate a bearer access token
+- Then the `def get_current_user()` will decode that token and return the authenticated user which will be used via dependency injection in all API requests
 
 
 ### TECH STACK
 
 - FastAPI for building REST Endpoints
-- AUTH0 for auth identity provider
+- Python Jose for basic jwt based auth identity provider
 - Redis as a credential store
 - AWS DynamoDB as the data store
 - Kafka as event streaming messaging system
@@ -43,11 +41,12 @@ Example design for one of the API's `/preferences`
 ### Linting and Formatting
 RUN 
 ```bash
+Linting:
+pylint "path to module/directory" OR 
+ruff check "path to module/directory"
 
-pylint app infrastructure 
-
---------------------------------------------------------------------
-Your code has been rated at 10.00/10 (previous run: 10.00/10, +0.00)
+Formatting:
+black "path to module/directory"
 ```
 
 
