@@ -3,7 +3,7 @@ name: Run Python Tests
 on:
   # Triggers the workflow on push or pull request events
   push:
-    branches: [ "main", "qa" ]
+    branches: [ "main"]
   pull_request:
     branches: [ "main" ]
 
