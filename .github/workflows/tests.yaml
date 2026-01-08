@@ -1,14 +1,13 @@
 name: Run Pylint and Python Tests
 
 on:
-  # Triggers the workflow on push or pull request events
   push:
     branches: [ "main"]
   pull_request:
     branches: [ "main" ]
 
 jobs:
-  # This workflow contains a single job called "test"
+  # This workflow contains a single job called "lint_and_test"
   lint_and_test:
     runs-on: ubuntu-latest
 
