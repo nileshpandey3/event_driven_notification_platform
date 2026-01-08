@@ -9,7 +9,7 @@ on:
 
 jobs:
   # This workflow contains a single job called "test"
-  test:
+  lint_and_test:
     runs-on: ubuntu-latest
 
     steps:
