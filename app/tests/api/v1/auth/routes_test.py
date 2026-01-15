@@ -1,10 +1,11 @@
+from fastapi import HTTPException
 from unittest.mock import patch
 
 import ipdb
 import pytest
 from fastapi.testclient import TestClient
-from pathspec.util import detailed_match_files
 
+from app.core.auth import get_current_user
 from app.core.config import PASSWORD, USERNAME
 from main import app
 
@@ -74,5 +75,46 @@ class TestRoutes:
 
         # Assert that the redis client was not set with the invalid user
         mock_redis_client.set.assert_not_called()
+
+
+    @pytest.mark.logout_authenticated_user
+    def test_logout_authenticated_user(self, mock_create_access_token,mock_redis_client):
+        """
+        Verify that an authenticated user can successfully log out
+        """
+        app.dependency_overrides[get_current_user] = lambda: "fake_user_id"
+
+        response = client.post("/api/v1/auth/logout")
+        assert response.status_code == 200
+        message = response.json()['message']
+
+        assert message == 'Logged out successfully'
+
+        mock_redis_client.delete.assert_called_once()
+        mock_create_access_token.assert_not_called()
+
+
+    @pytest.mark.non_authenticated_user_logout
+    def test_non_authenticated_user_logout(self,mock_create_access_token,mock_redis_client):
+        """
+        Verify that a non-authenticated user can't be logged out
+        """
+
+        # simulate a fake/invalid user
+        def invalid_user():
+            raise HTTPException(status_code=401)
+
+        app.dependency_overrides[get_current_user] = invalid_user
+        response = client.post("/api/v1/auth/logout")
+
+        assert response.status_code == 401
+
+        mock_redis_client.delete.assert_not_called()
+        mock_create_access_token.assert_not_called()
+
+
+    @classmethod
+    def teardown_class(cls):
+        app.dependency_overrides.clear()
 
 
