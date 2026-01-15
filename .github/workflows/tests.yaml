@@ -30,5 +30,9 @@ jobs:
           pylint $(git ls-files '*.py')      
 
       - name: Run Python Tests
+        env:
+          TEST_USER: ${{ secrets.TEST_USER }}
+          TEST_PASSWORD: ${{secrets.TEST_PASSWORD}}
+          SECRET_KEY: ${{secrets.SECRET_KEY}}
         run: |
           pytest app/tests/
