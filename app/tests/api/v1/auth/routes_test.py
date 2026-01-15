@@ -3,6 +3,7 @@ from unittest.mock import patch
 import ipdb
 import pytest
 from fastapi.testclient import TestClient
+from pathspec.util import detailed_match_files
 
 from app.core.config import PASSWORD, USERNAME
 from main import app
@@ -15,11 +16,17 @@ client = TestClient(app)
 @patch("app.api.v1.auth.routes.create_access_token")
 @pytest.mark.routes
 class TestRoutes:
+    """
+    Verify test cases for auth routes module which handles
+    user authentication for calling the protected api endpoints
+    """
 
-    @pytest.mark.login
-    def test_login(self,mock_create_access_token,mock_redis_client):
-
-        # Arrange
+    @pytest.mark.valid_login
+    def test_valid_login(self,mock_create_access_token,mock_redis_client):
+        """
+        Verify that a valid user can log in and receive an auth token
+        and the user is set in redis
+        """
         mock_create_access_token.return_value = "mocked.jwt.token"
 
         payload = {
@@ -45,3 +52,27 @@ class TestRoutes:
         assert args[0].startswith("user:")
         assert args[1] == "mocked.jwt.token"
         assert kwargs["ex"] == 3600
+
+
+    @pytest.mark.invalid_credentials
+    def test_invalid_credentials(self,mock_create_access_token,mock_redis_client):
+        """
+        Verify that invalid user can't log in and receive an auth token
+        """
+        mock_create_access_token.return_value = "mocked.jwt.token"
+
+        payload = {
+            "username": "invalid_user",
+            "password": "random_password"
+        }
+
+        response = client.post("/api/v1/auth/login", json=payload)
+        assert response.status_code == 401
+        detail = response.json()['detail']
+
+        assert detail == 'Invalid Username or Password'
+
+        # Assert that the redis client was not set with the invalid user
+        mock_redis_client.set.assert_not_called()
+
+
