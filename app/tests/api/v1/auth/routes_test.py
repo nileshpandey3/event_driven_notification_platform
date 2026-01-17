@@ -2,6 +2,7 @@
 Verify auth routes module
 """
 
+from http import HTTPStatus
 from unittest.mock import patch
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
@@ -36,7 +37,7 @@ class TestRoutes:
 
         response = client.post("/api/v1/auth/login", json=payload)
 
-        assert response.status_code == 200
+        assert response.status_code == HTTPStatus.OK
 
         body = response.json()
         assert body["message"] == "Auth Login successful"
@@ -47,11 +48,12 @@ class TestRoutes:
 
         # Verify redis was updated correctly
         mock_redis_client.set.assert_called_once()
-        args, kwargs = mock_redis_client.set.call_args
+        args, token_expiry = mock_redis_client.set.call_args
 
         assert args[0].startswith("user:")
         assert args[1] == "mocked.jwt.token"
-        assert kwargs["ex"] == 3600
+        # verify token expiry time is set to 3600 seconds
+        assert token_expiry["ex"] == 3600
 
     @pytest.mark.invalid_credentials
     def test_invalid_credentials(self, mock_create_access_token, mock_redis_client):
@@ -63,7 +65,7 @@ class TestRoutes:
         payload = {"username": "invalid_user", "password": "random_password"}
 
         response = client.post("/api/v1/auth/login", json=payload)
-        assert response.status_code == 401
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
         detail = response.json()["detail"]
 
         assert detail == "Invalid Username or Password"
@@ -81,7 +83,7 @@ class TestRoutes:
         app.dependency_overrides[get_current_user] = lambda: "fake_user_id"
 
         response = client.post("/api/v1/auth/logout")
-        assert response.status_code == 200
+        assert response.status_code == HTTPStatus.OK
         message = response.json()["message"]
 
         assert message == "Logged out successfully"
@@ -99,12 +101,12 @@ class TestRoutes:
 
         # simulate a fake/invalid user
         def invalid_user():
-            raise HTTPException(status_code=401)
+            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED)
 
         app.dependency_overrides[get_current_user] = invalid_user
         response = client.post("/api/v1/auth/logout")
 
-        assert response.status_code == 401
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
 
         mock_redis_client.delete.assert_not_called()
         mock_create_access_token.assert_not_called()
