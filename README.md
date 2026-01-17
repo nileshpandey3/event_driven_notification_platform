@@ -28,7 +28,7 @@ Example design for one of the API's `/preferences`
 
 ### How to start the App
 
-- Prereq: Python 3.11 or greater is installed, AWS account with an IAM user, AUTH0 app created with at least 1 user with email+password saved for testing
+- Prereq: Python 3.11 or greater is installed
 - Clone the project & cd into the root directory 
 - Make sure you have a `.env` file created with all the required AUTH0 and other env vars
 - Run `python -m pip install --upgrade pip`

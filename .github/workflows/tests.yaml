@@ -10,6 +10,7 @@ jobs:
   # This workflow contains a single job called "lint_and_test"
   lint_and_test:
     runs-on: ubuntu-latest
+    environment: test
 
     steps:
       - uses: actions/checkout@v5
