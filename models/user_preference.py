@@ -63,7 +63,7 @@ class UserPreferences(Base):
     )
     default_channel = Column(ChannelEnum, nullable=False)
 
-    # Additional columns to make queries easier at scale
+    # Additional table columns to make queries easier at scale
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(
         DateTime(timezone=True),

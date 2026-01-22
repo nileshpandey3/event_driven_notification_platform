@@ -5,9 +5,8 @@ This is the API layer, connects HTTP requests → service/repository → DynamoD
 from fastapi import APIRouter, Depends, status
 
 from app.api.v1.preferences.schemas import PreferencesResponse
-from app.api.v1.preferences.service import (
-    add_user_preference,
-)
+from app.api.v1.preferences.service import add_user_preference
+
 from app.core.auth import get_current_user
 
 router = APIRouter(prefix="/preferences", tags=["preferences"])
