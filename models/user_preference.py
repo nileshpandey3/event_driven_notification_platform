@@ -49,7 +49,7 @@ class UserPreferences(Base):
     __tablename__ = "user_preferences"
 
     id = Column(BIGINT, primary_key=True, autoincrement=True)
-    user_id = Column(String, ForeignKey("users.user_id"), nullable=False)
+    user_id = Column(BIGINT, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
     preference_type = Column(String, nullable=False)
     mandatory = Column(Boolean, nullable=False, default=False)
 
