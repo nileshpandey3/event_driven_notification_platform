@@ -4,15 +4,21 @@ Auth
 Schema validation
 Idempotency
 """
-from sqlalchemy.orm import Session
-from app.api.v1.preferences.schemas import PreferencesCreate
 
-def create_or_update_preference(
-    db: Session,
-    user_id: str,
-    payload: PreferencesCreate,
-):
+
+def get_user_preferences():
     """
-    TODO: Add logic for the handler service
-    which will validate/manipulate the incoming payload data and upsert
+    TODO: Add logic to handle the request and query from db
+    """
+
+
+def add_user_preference():
+    """
+    TODO: Add logic to handle the request and add new row into db if it doesnt exist
+    """
+
+
+def update_user_preference():
+    """
+    TODO: Add logic to handle the request and update db if existing record exists
     """

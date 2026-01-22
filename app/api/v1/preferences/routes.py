@@ -3,30 +3,26 @@ This is the API layer, connects HTTP requests → service/repository → DynamoD
 """
 
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
 
-from app.api.v1.preferences.schemas import PreferencesResponse, PreferencesCreate
-from app.api.v1.preferences.service import create_or_update_preference
+from app.api.v1.preferences.schemas import PreferencesResponse
+from app.api.v1.preferences.service import (
+    add_user_preference,
+)
 from app.core.auth import get_current_user
-from db.session import get_db
 
 router = APIRouter(prefix="/preferences", tags=["preferences"])
 
 
-@router.post("/",
-             response_model=PreferencesResponse,
-             status_code=status.HTTP_201_CREATED,
-             )
-def create_preferences(
-        payload: PreferencesCreate,
-        db: Session = Depends(get_db),
-        user=Depends(get_current_user),
-):
-    return create_or_update_preference(
-        db=db,
-        user_id=user["user_id"],
-        payload=payload,
-    )
+@router.post(
+    "/",
+    response_model=PreferencesResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_preferences():
+    """
+    Create new preferences record for a user
+    """
+    return add_user_preference()
 
 
 @router.put("/")
