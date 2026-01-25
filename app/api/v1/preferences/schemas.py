@@ -4,7 +4,7 @@ Pydantic schema for basic request/response validations
 
 from typing import List, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class PreferencesCreate(BaseModel):
@@ -26,13 +26,7 @@ class PreferencesResponse(BaseModel):
     mandatory: bool
     default_channel: str
 
-    class Config: # pylint: disable=too-few-public-methods
-        """
-        Since FAstAPI returns ORM objects with attributes e.g. 'obj.preference_type'
-        and pydantic expects dicts, this class will instruct pydantic to
-        read values from those attributes instead of expecting a dict.
-        """
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserPreferencesResponse(BaseModel):
