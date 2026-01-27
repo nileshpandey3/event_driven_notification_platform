@@ -2,21 +2,26 @@
 This is the API layer, connects HTTP requests → service/repository → DynamoDB
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
+
+from app.api.v1.preferences.schemas import PreferencesResponse
+from app.api.v1.preferences.service import add_user_preference
 
 from app.core.auth import get_current_user
 
 router = APIRouter(prefix="/preferences", tags=["preferences"])
 
 
-@router.post("/")
-def create_preferences(user=Depends(get_current_user)):
+@router.post(
+    "/",
+    response_model=PreferencesResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_preferences():
     """
-    TODO: Add the logic for the api
+    Create new preferences record for a user
     """
-    if user:
-        return "Testing: Successful CREATE response"
-    return None
+    return add_user_preference()
 
 
 @router.put("/")

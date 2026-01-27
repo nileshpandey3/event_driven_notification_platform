@@ -1,0 +1,65 @@
+name: Run Pylint, Python Tests and Migrations
+
+on:
+  push:
+    branches: [ "main"]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+  POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+  DATABASE_URL: postgresql+psycopg://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@localhost:5432/${{secrets.POSTGRES_DB}}
+  TEST_USER: ${{ secrets.TEST_USER }}
+  TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+
+jobs:
+  ci_pipeline:
+    runs-on: ubuntu-latest
+
+    # Start a fresh Postgres container for this job
+    services:
+      postgres:
+        env:
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+        image: postgres:16
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Linting check
+        run: |
+          # Exclude all files under migrations from pylint
+          pylint $(git ls-files '*.py')  | grep -v '^migrations/'    
+
+      - name: Run Alembic migrations
+        run: |
+          # Apply all migrations
+          alembic upgrade head
+
+      - name: Run Python Tests
+        run: |
+          pytest app/tests/

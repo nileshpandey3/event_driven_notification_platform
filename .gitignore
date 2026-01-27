@@ -1,1 +1,7 @@
+# Alembic temp
+migrations/versions/*.pyc
+# Python bytecode
+__pycache__/
+*.pyc
+# Env
 .env
