@@ -1,4 +1,4 @@
-name: Run Pylint and Python Tests
+name: Run Pylint, Python Tests and Migrations
 
 on:
   push:
@@ -7,9 +7,29 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # This workflow contains a single job called "lint_and_test"
-  lint_and_test:
+  ci_pipeline:
     runs-on: ubuntu-latest
+
+    # Start a fresh Postgres container for this job
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ${{ secrets.POSTGRES_USER }} -d ${{ secrets.POSTGRES_DB }}"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql+psycopg://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@localhost:5432/${{secrets.POSTGRES_DB}}
+      TEST_USER: ${{ secrets.TEST_USER }}
+      TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
     steps:
       - uses: actions/checkout@v5
@@ -29,15 +49,11 @@ jobs:
         run: |
           pylint $(git ls-files '*.py')  | grep -V '^migrations/'    
 
+      - name: Run Alembic migrations
+        run: |
+          # Apply all migrations
+          alembic upgrade head
+
       - name: Run Python Tests
-        env:
-          TEST_USER: ${{ secrets.TEST_USER }}
-          TEST_PASSWORD: ${{secrets.TEST_PASSWORD}}
-          SECRET_KEY: ${{secrets.SECRET_KEY}}
-          POSTGRES_USER: ${{secrets.POSTGRES_USER}}
-          POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
-          POSTGRES_DB: ${{secrets.POSTGRES_DB}}
-          POSTGRES_HOST: ${{secrets.POSTGRES_HOST}}
-          POSTGRES_PORT: ${{secrets.POSTGRES_PORT}}
         run: |
           pytest app/tests/
