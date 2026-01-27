@@ -17,27 +17,7 @@ from sqlalchemy.orm import relationship
 
 from db.base import Base
 
-# pylint: disable=too-few-public-methods
 # pylint: disable=not-callable
-
-class Users(Base):
-    """
-    Since one user can have multiple preferences we create a Users table to
-    store each unique users
-    """
-
-    __tablename__ = "users"
-    user_id = Column(BIGINT, primary_key=True)
-    created_at = Column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
-
-    # cascade==all ensures preferences are deleted if user is deleted.
-    # By creating a relationship between these 2 classes we can have a 2 way reference between them,
-    # and they can access each other's attributes
-    preferences = relationship(
-        "UserPreferences", back_populates="user", cascade="all, delete-orphan"
-    )
 
 
 class UserPreferences(Base):
@@ -46,10 +26,18 @@ class UserPreferences(Base):
     properties like 'mandatory', 'default_channel' etc. for each user
     """
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__}>"
+
+    def __str__(self) -> str:
+        return self.__class__.__name__
+
     __tablename__ = "user_preferences"
 
     id = Column(BIGINT, primary_key=True, autoincrement=True)
-    user_id = Column(BIGINT, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(
+        BIGINT, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False
+    )
     preference_type = Column(String, nullable=False)
     mandatory = Column(Boolean, nullable=False, default=False)
 
