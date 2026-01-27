@@ -1,5 +1,5 @@
 [MASTER]
-ignore=migrations
+ignore=migrations/.*
 
 [MESSAGES CONTROL]
 # Disable specific warnings
