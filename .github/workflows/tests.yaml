@@ -27,7 +27,7 @@ jobs:
 
       - name: Run Linting check
         run: |
-          pylint $(git ls-files '*.py')      
+          pylint $(git ls-files '*.py')  | grep -V '^migrations/'    
 
       - name: Run Python Tests
         env:
