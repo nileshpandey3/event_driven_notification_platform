@@ -31,7 +31,7 @@ POSTGRES_DB = required("POSTGRES_DB")
 POSTGRES_HOST = required("POSTGRES_HOST")
 POSTGRES_PORT = required("POSTGRES_PORT")
 DATABASE_URL = (
-    f"postgresql+psycopg2://{POSTGRES_USER}:"
+    f"postgresql+psycopg://{POSTGRES_USER}:"
     f"{POSTGRES_PASSWORD}@{POSTGRES_HOST}:"
     f"{POSTGRES_PORT}/{POSTGRES_DB}"
 )
