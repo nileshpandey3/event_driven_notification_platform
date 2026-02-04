@@ -26,7 +26,7 @@ class TestMigrations:
         Verify that expected tables are created successfully as
         a result of the migration
         """
-        required_tables = ["users", "user_preferences"]
+        required_tables = ["users", "user_preferences", "alembic_version"]
 
         inspector = inspect(engine)
         existing_tables = inspector.get_table_names()
