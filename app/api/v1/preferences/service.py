@@ -16,7 +16,6 @@ def get_user_preferences():
 
 def add_user_preference(
     body: PreferencesCreate,
-    user_id: str,
     db,
 ) -> PreferencesResponse:
     """

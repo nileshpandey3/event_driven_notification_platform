@@ -25,7 +25,7 @@ def add_user(
         existing = (
             db.query(Users)
             .filter(
-                Users.user_id == 1,
+                Users.user_id == body.user_id,
             )
             .first()
         )

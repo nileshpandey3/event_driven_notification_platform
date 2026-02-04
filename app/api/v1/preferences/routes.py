@@ -25,7 +25,9 @@ def create_preferences(
     """
     Create new preferences record for a user
     """
-    return add_user_preference(body, user, db)
+    assert user, f"User {user} a not a valid user or has not signed up for an account"
+
+    return add_user_preference(body, db)
 
 
 @router.put("/")
