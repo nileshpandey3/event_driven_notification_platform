@@ -5,8 +5,8 @@ from alembic import context
 
 from db.base import Base
 
-from models.user_preferences import UserPreferences
 from models.users import Users
+from models.user_preferences import UserPreferences
 from app.core.config import DATABASE_URL
 
 config = context.config
