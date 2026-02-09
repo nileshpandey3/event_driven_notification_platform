@@ -8,10 +8,23 @@ from app.api.v1.preferences.schemas import PreferencesCreate, PreferencesRespons
 from models.user_preferences import UserPreferences
 
 
-def get_user_preferences():
+def get_user_preferences(user_id: int, db) -> list[PreferencesResponse]:
     """
-    TODO: Add logic to handle the request and query from db
+    Return all preferences for the given user_id.
     """
+    rows = (
+        db.query(UserPreferences)
+        .filter(UserPreferences.user_id == user_id)
+        .all()
+    )
+    return [
+        PreferencesResponse(
+            preference_type=p.preference_type,
+            mandatory=p.mandatory,
+            default_channel=p.default_channel,
+        )
+        for p in rows
+    ]
 
 
 def add_user_preference(

@@ -18,6 +18,69 @@ from main import app
 client = TestClient(app)
 
 
+def _get_current_user_returns_id():
+    return "1"
+
+
+@patch("app.api.v1.preferences.routes.get_user_preferences")
+@pytest.mark.users_routes
+class TestGetUserPreferences:
+    @classmethod
+    def setup_class(cls):
+        app.dependency_overrides[get_current_user] = _get_current_user_returns_id
+        app.dependency_overrides[get_db] = override_get_db
+
+        cls.expected_preferences = [
+            {
+                "preference_type": "password_reset",
+                "mandatory": True,
+                "default_channel": "email",
+            },
+            {
+                "preference_type": "marketing",
+                "mandatory": False,
+                "default_channel": "sms",
+            },
+        ]
+
+    @pytest.mark.get_user_preferences
+    def test_get_preferences_returns_list(self, mock_get_user_preferences):
+        mock_get_user_preferences.return_value = self.expected_preferences
+
+        response = client.get("api/v1/preferences/")
+        response.raise_for_status()
+        body = response.json()
+
+        assert response.status_code == HTTPStatus.OK
+        assert isinstance(body, list)
+        assert len(body) == 2
+        assert body[0]["preference_type"] == "password_reset"
+        assert body[0]["mandatory"] is True
+        assert body[0]["default_channel"] == "email"
+        assert body[1]["preference_type"] == "marketing"
+        assert body[1]["mandatory"] is False
+        assert body[1]["default_channel"] == "sms"
+        mock_get_user_preferences.assert_called_once()
+        call_args = mock_get_user_preferences.call_args
+        assert call_args[0][0] == 1
+        assert call_args[0][1] is not None
+
+    @pytest.mark.get_user_preferences
+    def test_get_preferences_returns_empty_list(self, mock_get_user_preferences):
+        mock_get_user_preferences.return_value = []
+
+        response = client.get("api/v1/preferences/")
+        response.raise_for_status()
+        body = response.json()
+
+        assert response.status_code == HTTPStatus.OK
+        assert body == []
+
+    @classmethod
+    def teardown_class(cls):
+        app.dependency_overrides.clear()
+
+
 @patch("app.api.v1.preferences.routes.add_user_preference")
 @pytest.mark.users_routes
 class TestCreateUserPreferences:
