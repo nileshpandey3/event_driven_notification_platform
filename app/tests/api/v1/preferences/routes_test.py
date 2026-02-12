@@ -23,7 +23,7 @@ def _get_current_user_returns_id():
 
 
 @patch("app.api.v1.preferences.routes.get_user_preferences")
-@pytest.mark.users_routes
+@pytest.mark.get_user_preferences
 class TestGetUserPreferences:
     @classmethod
     def setup_class(cls):
@@ -43,7 +43,7 @@ class TestGetUserPreferences:
             },
         ]
 
-    @pytest.mark.get_user_preferences
+    @pytest.mark.get_preferences_returns_list
     def test_get_preferences_returns_list(self, mock_get_user_preferences):
         mock_get_user_preferences.return_value = self.expected_preferences
 
@@ -65,7 +65,7 @@ class TestGetUserPreferences:
         assert call_args[0][0] == 1
         assert call_args[0][1] is not None
 
-    @pytest.mark.get_user_preferences
+    @pytest.mark.get_preferences_returns_empty_list
     def test_get_preferences_returns_empty_list(self, mock_get_user_preferences):
         mock_get_user_preferences.return_value = []
 
