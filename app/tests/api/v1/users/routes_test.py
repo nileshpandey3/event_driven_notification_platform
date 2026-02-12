@@ -50,6 +50,11 @@ class TestUsersRoutes:
         body = response.json()
         assert body["user_id"] == user["user_id"]
 
+
+    @pytest.mark.get_user
+    def test_get_user(self):
+        pass
+
     @classmethod
     def teardown_class(cls):
         """

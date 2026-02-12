@@ -34,8 +34,10 @@ class UserPreferencesResponse(BaseModel):
     Schema to validate the list of preference responses for each user
     """
 
-    user_id: str
+    user_id: int
     preferences: List[PreferencesResponse]
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PreferencesUpdate(BaseModel):

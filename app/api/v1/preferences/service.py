@@ -4,15 +4,25 @@ Preference handler service: auth, schema validation, and persistence.
 
 from sqlalchemy.exc import IntegrityError
 
-from app.api.v1.preferences.schemas import PreferencesCreate, PreferencesResponse
+from app.api.v1.preferences.schemas import PreferencesCreate, PreferencesResponse, UserPreferencesResponse
 from models.user_preferences import UserPreferences
 
 
-def get_user_preferences():
+def get_user_preferences(
+        user_id,
+        db
+)-> UserPreferencesResponse:
     """
-    TODO: Add logic to handle the request and query from db
+    Get preferences for a valid user
     """
+    preferences = (db.query(UserPreferences).
+                   filter(UserPreferences.user_id == user_id)).all()
 
+
+    return UserPreferencesResponse(
+        user_id = user_id,
+        preferences = preferences
+    )
 
 def add_user_preference(
     body: PreferencesCreate,

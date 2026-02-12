@@ -48,6 +48,7 @@ class UserPreferences(Base):
         "sms",
         "push",
         name="channel_enum",
+        create_type=False,
     )
     default_channel = Column(ChannelEnum, nullable=False)
 

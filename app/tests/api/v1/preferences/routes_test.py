@@ -43,7 +43,8 @@ class TestCreateUserPreferences:
     @pytest.mark.create_user_preferences
     def test_create_user_preferences(self, mock_add_user_preference):
         """
-        Verify that we can successfully POST a valid users preferences
+        Verify that we can successfully add preferences for a new user
+        using the POST /preferences endpoint
         """
         mock_add_user_preference.return_value = self.preference_body
 
@@ -55,6 +56,10 @@ class TestCreateUserPreferences:
         assert body["preference_type"] == self.preference_body["preference_type"]
         assert body["mandatory"] == self.preference_body["mandatory"]
         assert body["default_channel"] == self.preference_body["default_channel"]
+
+
+    def test_idempotency(self):
+        pass
 
     @classmethod
     def teardown_class(cls):
