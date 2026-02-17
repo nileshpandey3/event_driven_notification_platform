@@ -4,9 +4,17 @@ This is the API layer, connects HTTP requests → service/repository → DB
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.v1.preferences.schemas import PreferencesCreate, PreferencesResponse, PreferencesUpdate
-from app.api.v1.preferences.service import add_user_preference, get_user_preferences, update_user_preference, \
-    remove_user_preference
+from app.api.v1.preferences.schemas import (
+    PreferencesCreate,
+    PreferencesResponse,
+    PreferencesUpdate,
+)
+from app.api.v1.preferences.service import (
+    add_user_preference,
+    get_user_preferences,
+    update_user_preference,
+    remove_user_preference,
+)
 from app.core.auth import get_current_user
 from db.session import get_db
 
@@ -34,14 +42,13 @@ def create_preferences(
 @router.patch(
     "/{preference_type}",
     response_model=PreferencesUpdate,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 def update_preferences(
     preference_type: str,
     body: PreferencesUpdate,
     user=Depends(get_current_user),
     db=Depends(get_db),
-
 ):
     """
     Update preferences for a user
@@ -55,9 +62,7 @@ def update_preferences(
 
 
 @router.get(
-    "/",
-    response_model=list[PreferencesResponse],
-    status_code=status.HTTP_200_OK
+    "/", response_model=list[PreferencesResponse], status_code=status.HTTP_200_OK
 )
 def get_preferences(
     user=Depends(get_current_user),
@@ -71,19 +76,14 @@ def get_preferences(
     return get_user_preferences(user_id, db)
 
 
-@router.delete(
-    "/{preference_type}",
-    status_code=status.HTTP_204_NO_CONTENT
-)
+@router.delete("/{preference_type}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_preferences(
-        preference_type: str,
-        user=Depends(get_current_user),
-        db=Depends(get_db),
-
+    preference_type: str,
+    user=Depends(get_current_user),
+    db=Depends(get_db),
 ):
     """
     Delete a preference for a user
     """
     assert user, f"User {user} is not a valid user or has not signed up for an account"
     return remove_user_preference(preference_type, db)
-

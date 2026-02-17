@@ -5,7 +5,6 @@ Module to test /preferences routes test cases
 from http import HTTPStatus
 from unittest.mock import patch
 
-import ipdb
 import pytest
 
 from fastapi.testclient import TestClient
@@ -26,8 +25,15 @@ def _get_current_user_returns_id():
 @patch("app.api.v1.preferences.routes.get_user_preferences")
 @pytest.mark.get_user_preferences
 class TestGetUserPreferences:
+    """
+    TODO
+    """
+
     @classmethod
     def setup_class(cls):
+        """
+        TODO
+        """
         app.dependency_overrides[get_current_user] = _get_current_user_returns_id
         app.dependency_overrides[get_db] = override_get_db
 
@@ -46,6 +52,9 @@ class TestGetUserPreferences:
 
     @pytest.mark.get_preferences_returns_list
     def test_get_preferences_returns_list(self, mock_get_user_preferences):
+        """
+        TODO
+        """
         mock_get_user_preferences.return_value = self.expected_preferences
 
         response = client.get("api/v1/preferences/")
@@ -68,6 +77,9 @@ class TestGetUserPreferences:
 
     @pytest.mark.get_preferences_returns_empty_list
     def test_get_preferences_returns_empty_list(self, mock_get_user_preferences):
+        """
+        TODO
+        """
         mock_get_user_preferences.return_value = []
 
         response = client.get("api/v1/preferences/")
@@ -79,6 +91,9 @@ class TestGetUserPreferences:
 
     @classmethod
     def teardown_class(cls):
+        """
+        Run at the end of all tests
+        """
         app.dependency_overrides.clear()
 
 
@@ -127,9 +142,13 @@ class TestCreateUserPreferences:
         """
         app.dependency_overrides.clear()
 
+
 @patch("app.api.v1.preferences.routes.update_user_preference")
 @pytest.mark.update_user_preference
 class TestUpdateUserPreferences:
+    """
+    Verify PATCH /{preference_type} endpoint
+    """
 
     @classmethod
     def setup_class(cls):
@@ -147,18 +166,22 @@ class TestUpdateUserPreferences:
 
     @pytest.mark.update_user_preference
     def test_update_user_preferences(self, mock_update_user_preferences):
-        preference_type= "subscription_renewal"
+        """
+        TODO
+        """
+        preference_type = "subscription_renewal"
         mock_update_user_preferences.return_value = self.preference_body
 
-        response = client.patch(url=f'api/v1/preferences/{preference_type}', json=self.preference_body)
+        response = client.patch(
+            url=f"api/v1/preferences/{preference_type}", json=self.preference_body
+        )
         response.raise_for_status()
         body = response.json()
 
-        assert body['mandatory'] == self.preference_body['mandatory']
-        assert body['default_channel'] == self.preference_body['default_channel']
+        assert body["mandatory"] == self.preference_body["mandatory"]
+        assert body["default_channel"] == self.preference_body["default_channel"]
 
         mock_update_user_preferences.assert_called_once()
-
 
     @classmethod
     def teardown_class(cls):
@@ -174,6 +197,7 @@ class TestRemoveUserPreference:
     """
     Verify DELETE /{preference_type} endpoint
     """
+
     @classmethod
     def setup_class(cls):
         """
@@ -190,7 +214,7 @@ class TestRemoveUserPreference:
         mock_remove_user_preference.return_value = True
         preference_type = "subscription_renewal"
 
-        response = client.delete(url=f'api/v1/preferences/{preference_type}')
+        response = client.delete(url=f"api/v1/preferences/{preference_type}")
 
         assert response.status_code == 204
         assert response.text == ""
@@ -203,4 +227,3 @@ class TestRemoveUserPreference:
         Run at the end of all tests
         """
         app.dependency_overrides.clear()
-

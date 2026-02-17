@@ -42,6 +42,7 @@ class PreferencesUpdate(BaseModel):
     """
     Schema to validate update preference body
     """
+
     mandatory: bool
     default_channel: str
 

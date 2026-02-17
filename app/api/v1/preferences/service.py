@@ -1,10 +1,15 @@
 """
 Preference handler service: auth, schema validation, and persistence.
 """
+
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 
-from app.api.v1.preferences.schemas import PreferencesCreate, PreferencesResponse, PreferencesUpdate
+from app.api.v1.preferences.schemas import (
+    PreferencesCreate,
+    PreferencesResponse,
+    PreferencesUpdate,
+)
 from models.user_preferences import UserPreferences
 
 
@@ -12,11 +17,7 @@ def get_user_preferences(user_id, db) -> list[PreferencesResponse]:
     """
     Return all preferences for the given user_id.
     """
-    rows = (
-        db.query(UserPreferences)
-        .filter(UserPreferences.user_id == user_id)
-        .all()
-    )
+    rows = db.query(UserPreferences).filter(UserPreferences.user_id == user_id).all()
     return [
         PreferencesResponse(
             preference_type=p.preference_type,
@@ -65,19 +66,23 @@ def add_user_preference(
 
 
 def update_user_preference(
-        preference_type,
-        body,
-        db,
-)-> PreferencesUpdate:
+    preference_type,
+    body,
+    db,
+) -> PreferencesUpdate:
     """
     Update preference for a user only if preferences already exist
     Else create the preferences object using Upsert semantics
     """
 
-    pref = db.query(UserPreferences).filter(
-        UserPreferences.user_id == 1,
-        UserPreferences.preference_type == preference_type
-    ).first()
+    pref = (
+        db.query(UserPreferences)
+        .filter(
+            UserPreferences.user_id == 1,
+            UserPreferences.preference_type == preference_type,
+        )
+        .first()
+    )
 
     # UPDATE
     if pref:
@@ -100,20 +105,21 @@ def update_user_preference(
     db.refresh(pref)
     return pref
 
-def remove_user_preference(
-    preference_type: str,
-    db
 
-):
-    existing = (db.query(UserPreferences).
-                filter(
-        UserPreferences.user_id == 1,
-        UserPreferences.preference_type == preference_type
-    )).first()
+def remove_user_preference(preference_type: str, db):
+    """
+    TODO:
+    """
+    existing = (
+        db.query(UserPreferences).filter(
+            UserPreferences.user_id == 1,
+            UserPreferences.preference_type == preference_type,
+        )
+    ).first()
 
     if existing:
         db.delete(existing)
         db.commit()
 
     else:
-        raise HTTPException(status_code=404, detail='Preference not found')
+        raise HTTPException(status_code=404, detail="Preference not found")
