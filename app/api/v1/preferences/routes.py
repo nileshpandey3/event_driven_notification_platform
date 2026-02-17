@@ -4,8 +4,8 @@ This is the API layer, connects HTTP requests → service/repository → DB
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.v1.preferences.schemas import PreferencesCreate, PreferencesResponse
-from app.api.v1.preferences.service import add_user_preference, get_user_preferences
+from app.api.v1.preferences.schemas import PreferencesCreate, PreferencesResponse, PreferencesUpdate
+from app.api.v1.preferences.service import add_user_preference, get_user_preferences, update_user_preferences
 from app.core.auth import get_current_user
 from db.session import get_db
 
@@ -30,14 +30,26 @@ def create_preferences(
     return add_user_preference(body, db)
 
 
-@router.put("/")
-def update_preferences(user=Depends(get_current_user)):
+@router.patch(
+    "/{preference_type}",
+    response_model=PreferencesUpdate
+)
+def update_preferences(
+    preference_type: str,
+    body: PreferencesUpdate,
+    user=Depends(get_current_user),
+    db=Depends(get_db),
+
+):
     """
-    TODO: Add the logic for the api
+    Update preferences for a user
     """
-    if user:
-        return "Testing: Successful PUT response"
-    return None
+    assert user, f"User {user} a not a valid user or has not signed up for an account"
+    return update_user_preferences(
+        preference_type,
+        body,
+        db,
+    )
 
 
 @router.get("/", response_model=list[PreferencesResponse])

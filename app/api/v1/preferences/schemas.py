@@ -40,8 +40,12 @@ class UserPreferencesResponse(BaseModel):
 
 class PreferencesUpdate(BaseModel):
     """
-    TODO: Write validation
+    Schema to validate update preference body
     """
+    mandatory: bool
+    default_channel: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class LoginRequest(BaseModel):

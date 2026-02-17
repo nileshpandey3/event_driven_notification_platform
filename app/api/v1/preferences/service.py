@@ -4,11 +4,11 @@ Preference handler service: auth, schema validation, and persistence.
 
 from sqlalchemy.exc import IntegrityError
 
-from app.api.v1.preferences.schemas import PreferencesCreate, PreferencesResponse
+from app.api.v1.preferences.schemas import PreferencesCreate, PreferencesResponse, PreferencesUpdate
 from models.user_preferences import UserPreferences
 
 
-def get_user_preferences(user_id: int, db) -> list[PreferencesResponse]:
+def get_user_preferences(user_id, db) -> list[PreferencesResponse]:
     """
     Return all preferences for the given user_id.
     """
@@ -64,7 +64,38 @@ def add_user_preference(
     )
 
 
-def update_user_preference():
+def update_user_preferences(
+        preference_type,
+        body,
+        db,
+)-> PreferencesUpdate:
     """
-    TODO: Add logic to handle the request and update db if existing record exists
+    Update preference for a user only if preferences already exist
+    Else create the preferences object using Upsert semantics
     """
+
+    pref = db.query(UserPreferences).filter(
+        UserPreferences.user_id == 1,
+        UserPreferences.preference_type == preference_type
+    ).first()
+
+    # UPDATE
+    if pref:
+        if body.mandatory is not None:
+            pref.mandatory = body.mandatory
+        if body.default_channel is not None:
+            pref.default_channel = body.default_channel
+
+    # CREATE
+    else:
+        pref = UserPreferences(
+            user_id=1,
+            preference_type=preference_type,
+            mandatory=body.mandatory,
+            default_channel=body.default_channel,
+        )
+        db.add(pref)
+
+    db.commit()
+    db.refresh(pref)
+    return pref

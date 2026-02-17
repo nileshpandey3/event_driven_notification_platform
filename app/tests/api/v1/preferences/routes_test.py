@@ -3,8 +3,10 @@ Module to test /preferences routes test cases
 """
 
 from http import HTTPStatus
+from idlelib.rpc import response_queue
 from unittest.mock import patch
 
+import ipdb
 import pytest
 
 from fastapi.testclient import TestClient
@@ -125,3 +127,41 @@ class TestCreateUserPreferences:
         Run at the end of all tests
         """
         app.dependency_overrides.clear()
+
+@patch("app.api.v1.preferences.routes.update_user_preferences")
+@pytest.mark.update_user_preferences
+class TestUpdateUserPreferences:
+
+    @classmethod
+    def setup_class(cls):
+        """
+        Setup mocking requirements for the PATCH /{preference_type} endpoint
+        """
+        app.dependency_overrides[get_current_user] = override_get_current_user
+        app.dependency_overrides[get_db] = override_get_db
+
+        # Preferences request payload
+        cls.preference_body = {
+            "mandatory": True,
+            "default_channel": "email",
+        }
+
+    @pytest.mark.update_user_preferences
+    def test_update_user_preferences(self, mock_update_user_preferences):
+        preference_type= "subscription_renewal”"
+        mock_update_user_preferences.return_value = self.preference_body
+
+        response = client.patch(url=f'api/v1/preferences/{preference_type}', json=self.preference_body)
+        response.raise_for_status()
+        body = response.json()
+
+        assert body['mandatory'] == self.preference_body['mandatory']
+        assert body['default_channel'] == self.preference_body['default_channel']
+
+    @classmethod
+    def teardown_class(cls):
+        """
+        Run at the end of all tests
+        """
+        app.dependency_overrides.clear()
+
