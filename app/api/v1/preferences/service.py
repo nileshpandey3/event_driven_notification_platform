@@ -1,7 +1,7 @@
 """
 Preference handler service: auth, schema validation, and persistence.
 """
-
+from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 
 from app.api.v1.preferences.schemas import PreferencesCreate, PreferencesResponse, PreferencesUpdate
@@ -64,7 +64,7 @@ def add_user_preference(
     )
 
 
-def update_user_preferences(
+def update_user_preference(
         preference_type,
         body,
         db,
@@ -99,3 +99,21 @@ def update_user_preferences(
     db.commit()
     db.refresh(pref)
     return pref
+
+def remove_user_preference(
+    preference_type: str,
+    db
+
+):
+    existing = (db.query(UserPreferences).
+                filter(
+        UserPreferences.user_id == 1,
+        UserPreferences.preference_type == preference_type
+    )).first()
+
+    if existing:
+        db.delete(existing)
+        db.commit()
+
+    else:
+        raise HTTPException(status_code=404, detail='Preference not found')
