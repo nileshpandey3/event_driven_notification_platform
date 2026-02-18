@@ -99,7 +99,7 @@ class TestGetUserPreferences:
 
 
 @patch("app.api.v1.preferences.routes.add_user_preference")
-@pytest.mark.users_routes
+@pytest.mark.create_user_preferences
 class TestCreateUserPreferences:
     """
     Class to verify POST '/preferences' endpoint
@@ -227,6 +227,8 @@ class TestRemoveUserPreference:
         assert response.text == ""
 
         mock_remove_user_preference.assert_called_once()
+        call_args = mock_remove_user_preference.call_args
+        assert call_args[0][0] == preference_type
 
     @classmethod
     def teardown_class(cls):
