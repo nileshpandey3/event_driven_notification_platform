@@ -26,13 +26,13 @@ def _get_current_user_returns_id():
 @pytest.mark.get_user_preferences
 class TestGetUserPreferences:
     """
-    TODO
+    Test Class to verify GET preferences endpoint
     """
 
     @classmethod
     def setup_class(cls):
         """
-        TODO
+        Set up data to verify GET preferences end point
         """
         app.dependency_overrides[get_current_user] = _get_current_user_returns_id
         app.dependency_overrides[get_db] = override_get_db
@@ -53,7 +53,7 @@ class TestGetUserPreferences:
     @pytest.mark.get_preferences_returns_list
     def test_get_preferences_returns_list(self, mock_get_user_preferences):
         """
-        TODO
+        Verify that the get preferences returns a successful response
         """
         mock_get_user_preferences.return_value = self.expected_preferences
 
@@ -78,7 +78,8 @@ class TestGetUserPreferences:
     @pytest.mark.get_preferences_returns_empty_list
     def test_get_preferences_returns_empty_list(self, mock_get_user_preferences):
         """
-        TODO
+        Verify that if no preferences exist for a user
+        then the endpoint returns an empty reponse
         """
         mock_get_user_preferences.return_value = []
 
@@ -167,9 +168,9 @@ class TestUpdateUserPreferences:
     @pytest.mark.update_user_preference
     def test_update_user_preferences(self, mock_update_user_preferences):
         """
-        TODO
+        Verify that we can successfully update a users preference
         """
-        preference_type = "subscription_renewal"
+        preference_type = "payment_confirmed"
         mock_update_user_preferences.return_value = self.preference_body
 
         response = client.patch(
@@ -182,6 +183,12 @@ class TestUpdateUserPreferences:
         assert body["default_channel"] == self.preference_body["default_channel"]
 
         mock_update_user_preferences.assert_called_once()
+        args, _ = mock_update_user_preferences.call_args
+
+        assert args[0] == preference_type
+        assert args[1].mandatory == self.preference_body["mandatory"]
+        assert args[1].default_channel == self.preference_body["default_channel"]
+        assert args[2] is not None
 
     @classmethod
     def teardown_class(cls):

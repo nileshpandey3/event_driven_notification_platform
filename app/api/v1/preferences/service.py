@@ -108,7 +108,7 @@ def update_user_preference(
 
 def remove_user_preference(preference_type: str, db):
     """
-    TODO:
+    Handler function to delete a users preference if they exist
     """
     existing = (
         db.query(UserPreferences).filter(

@@ -13,7 +13,7 @@ def add_user(
     db,
 ) -> UsersResponse:
     """
-    TODO
+    Handler to add a new user to the Users table
     """
     user = Users(user_id=body.user_id)
     db.add(user)
