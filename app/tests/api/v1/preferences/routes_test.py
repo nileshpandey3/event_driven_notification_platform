@@ -223,7 +223,7 @@ class TestRemoveUserPreference:
 
         response = client.delete(url=f"api/v1/preferences/{preference_type}")
 
-        assert response.status_code == 204
+        assert response.status_code == HTTPStatus.NO_CONTENT
         assert response.text == ""
 
         mock_remove_user_preference.assert_called_once()

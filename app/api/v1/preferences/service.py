@@ -72,7 +72,7 @@ def update_user_preference(
 ) -> PreferencesUpdate:
     """
     Update preference for a user only if preferences already exist
-    Else create the preferences object using Upsert semantics
+    else create the preference object using Upsert semantics
     """
 
     pref = (
