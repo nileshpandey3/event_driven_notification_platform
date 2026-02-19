@@ -12,11 +12,7 @@ def get_user_preferences(user_id: int, db) -> list[PreferencesResponse]:
     """
     Return all preferences for the given user_id.
     """
-    rows = (
-        db.query(UserPreferences)
-        .filter(UserPreferences.user_id == user_id)
-        .all()
-    )
+    rows = db.query(UserPreferences).filter(UserPreferences.user_id == user_id).all()
     return [
         PreferencesResponse(
             preference_type=p.preference_type,

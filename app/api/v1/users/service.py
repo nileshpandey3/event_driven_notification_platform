@@ -2,6 +2,8 @@
 Users handler service: auth, schema validation, and persistence.
 """
 
+from alembic.util import status
+from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
 from app.api.v1.users.schema import UsersCreate, UsersResponse
@@ -13,24 +15,22 @@ def add_user(
     db,
 ) -> UsersResponse:
     """
-    TODO
+    Add a new user to our Users table
     """
-    user = Users(user_id=body.user_id)
+    user = Users(username=body.username, password=body.password)
     db.add(user)
+
     try:
         db.commit()
         db.refresh(user)
+
     except IntegrityError:
         db.rollback()
-        existing = (
-            db.query(Users)
-            .filter(
-                Users.user_id == body.user_id,
-            )
-            .first()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Username already exists"
         )
-        if not existing:
-            raise
+
     return UsersResponse(
-        user_id=body.user_id,
+        user_id=user.user_id,
+        username=user.username,
     )

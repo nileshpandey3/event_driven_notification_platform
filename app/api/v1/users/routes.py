@@ -19,11 +19,11 @@ router = APIRouter(prefix="/users", tags=["users"])
 )
 def create_user(
     body: UsersCreate,
-    user=Depends(get_current_user),
     db=Depends(get_db),
 ):
     """
     Create a new user record for a valid user
+    e.g. when a new user signs up for a new account
+    using a website or app
     """
-    assert user, f"User {user} a not a valid user or has not signed up for an account"
     return add_user(body, db)
