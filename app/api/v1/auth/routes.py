@@ -19,7 +19,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/login")
-def login(data: LoginRequest, db = Depends(get_db)):
+def login(data: LoginRequest, db=Depends(get_db)):
     """
     Perform a simple auth flow for an existing user
     and issue an access token for api authentication
@@ -28,10 +28,10 @@ def login(data: LoginRequest, db = Depends(get_db)):
     # Find user in DB
     user = db.query(Users).filter(Users.username == data.username).first()
 
-    if not user and user.password != data.password:
+    if not user or user.password != data.password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password",
+            detail="Invalid Username or Password",
         )
 
     payload = {

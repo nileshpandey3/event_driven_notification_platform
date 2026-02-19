@@ -3,14 +3,17 @@ Verify auth routes module
 """
 
 from http import HTTPStatus
-from unittest.mock import patch
-from fastapi import HTTPException
+from unittest.mock import patch, MagicMock
+
+import ipdb
+from fastapi import HTTPException, status
 from fastapi.testclient import TestClient
 
 import pytest
 
 from app.core.auth import get_current_user
 from app.core.config import PASSWORD, USERNAME
+from db.session import get_db
 from main import app
 
 client = TestClient(app)
@@ -25,6 +28,21 @@ class TestRoutes:
     user authentication for calling the protected api endpoints
     """
 
+    @classmethod
+    def setup_class(cls):
+        """
+        Setup data to be used to verify /login endpoint
+        """
+        # Configure mock db session to be used by login tests
+        cls.mock_db = MagicMock()
+        app.dependency_overrides[get_db] = lambda: cls.mock_db
+
+        # Configure a mock valid user object
+        cls.user = MagicMock()
+        cls.user.user_id = 1
+        cls.user.username = "mocked_valid_user"
+        cls.user.password = "secret_test_password"
+
     @pytest.mark.valid_login
     def test_valid_login(self, mock_create_access_token, mock_redis_client):
         """
@@ -33,7 +51,10 @@ class TestRoutes:
         """
         mock_create_access_token.return_value = "mocked.jwt.token"
 
-        payload = {"username": USERNAME, "password": PASSWORD}
+        # Mock the db response for a valid existing user
+        self.mock_db.query().filter().first.return_value = self.user
+
+        payload = {"username": "mocked_valid_user", "password": "secret_test_password"}
 
         response = client.post("/api/v1/auth/login", json=payload)
 
@@ -56,18 +77,21 @@ class TestRoutes:
         assert token_expiry["ex"] == 3600
 
     @pytest.mark.invalid_credentials
-    def test_invalid_credentials(self, mock_create_access_token, mock_redis_client):
+    def test_invalid_credentials(self, mock_authenticate, mock_redis_client):
         """
         Verify that invalid user can't log in and receive an auth token
         """
-        mock_create_access_token.return_value = "mocked.jwt.token"
+        mock_authenticate.side_effect = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password",
+        )
 
-        payload = {"username": "invalid_user", "password": "random_password"}
+        payload = {"username": "invalid_user", "password": "invalid_password"}
 
         response = client.post("/api/v1/auth/login", json=payload)
+
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         detail = response.json()["detail"]
-
         assert detail == "Invalid Username or Password"
 
         # Assert that the redis client was not set with the invalid user
