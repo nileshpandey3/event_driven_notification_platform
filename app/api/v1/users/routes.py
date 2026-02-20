@@ -2,6 +2,7 @@
 This is the API layer, connects HTTP requests → service/repository → DB
 """
 
+from boto3 import Session
 from fastapi import APIRouter, Depends, status
 
 from app.api.v1.users.schema import UsersCreate, UsersResponse
@@ -20,7 +21,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 def create_user(
     body: UsersCreate,
     user=Depends(get_current_user),
-    db=Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     """
     Create a new user record for a valid user
