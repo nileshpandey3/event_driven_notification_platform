@@ -13,7 +13,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import ENUM
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from db.base import Base
 
@@ -49,7 +49,7 @@ class UserPreferences(Base):
         "push",
         name="channel_enum",
     )
-    default_channel = Column(ChannelEnum, nullable=False)
+    default_channel: Mapped[str] = mapped_column(ChannelEnum, nullable=False)
 
     # Additional table columns to make queries easier at scale
     created_at = Column(DateTime(timezone=True), server_default=func.now())

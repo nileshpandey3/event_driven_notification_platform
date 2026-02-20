@@ -3,6 +3,7 @@ Users handler service: auth, schema validation, and persistence.
 """
 
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 from app.api.v1.users.schema import UsersCreate, UsersResponse
 from models import Users
@@ -10,7 +11,7 @@ from models import Users
 
 def add_user(
     body: UsersCreate,
-    db,
+    db: Session,
 ) -> UsersResponse:
     """
     Handler to add a new user to the Users table

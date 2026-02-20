@@ -4,6 +4,7 @@ Preference handler service: auth, schema validation, and persistence.
 
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 from app.api.v1.preferences.schemas import (
     PreferencesCreate,
@@ -13,7 +14,7 @@ from app.api.v1.preferences.schemas import (
 from models.user_preferences import UserPreferences
 
 
-def get_user_preferences(user_id, db) -> list[PreferencesResponse]:
+def get_user_preferences(user_id, db: Session) -> list[PreferencesResponse]:
     """
     Return all preferences for the given user_id.
     """
@@ -30,7 +31,7 @@ def get_user_preferences(user_id, db) -> list[PreferencesResponse]:
 
 def add_user_preference(
     body: PreferencesCreate,
-    db,
+    db: Session,
 ) -> PreferencesResponse:
     """
     Add a new preference for the user if it doesn't already exist.
@@ -68,7 +69,7 @@ def add_user_preference(
 def update_user_preference(
     preference_type,
     body,
-    db,
+    db: Session,
 ) -> PreferencesUpdate:
     """
     Update preference for a user only if preferences already exist
@@ -106,7 +107,7 @@ def update_user_preference(
     return pref
 
 
-def remove_user_preference(preference_type: str, db):
+def remove_user_preference(preference_type: str, db: Session):
     """
     Handler function to delete a users preference if they exist
     """
