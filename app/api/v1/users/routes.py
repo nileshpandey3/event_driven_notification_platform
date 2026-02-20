@@ -6,7 +6,6 @@ from fastapi import APIRouter, Depends, status
 
 from app.api.v1.users.schema import UsersCreate, UsersResponse
 from app.api.v1.users.service import add_user
-from app.core.auth import get_current_user
 from db.session import get_db
 
 router = APIRouter(prefix="/users", tags=["users"])

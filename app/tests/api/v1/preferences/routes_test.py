@@ -25,8 +25,14 @@ def _get_current_user_returns_id():
 @patch("app.api.v1.preferences.routes.get_user_preferences")
 @pytest.mark.get_user_preferences
 class TestGetUserPreferences:
+    """
+    Test class to verify different use cases for POST /preferences end point
+    """
     @classmethod
     def setup_class(cls):
+        """
+        Setup mock data to be used by tests
+        """
         app.dependency_overrides[get_current_user] = _get_current_user_returns_id
         app.dependency_overrides[get_db] = override_get_db
 
@@ -45,6 +51,10 @@ class TestGetUserPreferences:
 
     @pytest.mark.get_preferences_returns_list
     def test_get_preferences_returns_list(self, mock_get_user_preferences):
+        """
+        Verify that we can successfully retreive a list of preferences
+        for a valid user
+        """
         mock_get_user_preferences.return_value = self.expected_preferences
 
         response = client.get("api/v1/preferences/")
@@ -67,6 +77,10 @@ class TestGetUserPreferences:
 
     @pytest.mark.get_preferences_returns_empty_list
     def test_get_preferences_returns_empty_list(self, mock_get_user_preferences):
+        """
+        Verify that if no preferences exist for a user then the endpoint
+        returns an empty list
+        """
         mock_get_user_preferences.return_value = []
 
         response = client.get("api/v1/preferences/")
@@ -78,6 +92,9 @@ class TestGetUserPreferences:
 
     @classmethod
     def teardown_class(cls):
+        """
+        Run at the end of all tests
+        """
         app.dependency_overrides.clear()
 
 
