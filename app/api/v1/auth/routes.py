@@ -5,7 +5,6 @@ Module to handle user authentication for calling the protected endpoints
 import datetime
 from datetime import timedelta
 
-from boto3 import Session
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.v1.preferences.schemas import LoginRequest

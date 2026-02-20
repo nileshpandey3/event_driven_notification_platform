@@ -5,14 +5,12 @@ Verify auth routes module
 from http import HTTPStatus
 from unittest.mock import patch, MagicMock
 
-import ipdb
 from fastapi import HTTPException, status
 from fastapi.testclient import TestClient
 
 import pytest
 
 from app.core.auth import get_current_user
-from app.core.config import PASSWORD, USERNAME
 from db.session import get_db
 from main import app
 

@@ -24,6 +24,7 @@ def get_user_preferences(user_id: int, db) -> list[PreferencesResponse]:
 
 
 def add_user_preference(
+    user_id,
     body: PreferencesCreate,
     db,
 ) -> PreferencesResponse:
@@ -31,8 +32,10 @@ def add_user_preference(
     Add a new preference for the user if it doesn't already exist.
     Uses upsert semantics: on duplicate (user_id, preference_type), no-op and return existing.
     """
+
+    user_id = db.query(UserPreferences).filter(UserPreferences.user_id == user_id).first
     preference = UserPreferences(
-        user_id=1,
+        user_id=user_id,
         preference_type=body.preference_type,
         mandatory=body.mandatory,
         default_channel=body.default_channel,
