@@ -2,15 +2,17 @@
 Pydantic schema for basic request/response validations for users table
 """
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class UsersCreate(BaseModel):
     """
     Validation model for creating a new user
+    using a username and password
     """
 
-    user_id: int
+    username: str = Field(min_length=3, max_length=50)
+    password: str = Field(min_length=8, max_length=50)
 
 
 class UsersResponse(BaseModel):
@@ -19,5 +21,6 @@ class UsersResponse(BaseModel):
     """
 
     user_id: int
+    username: str
 
     model_config = ConfigDict(from_attributes=True)
