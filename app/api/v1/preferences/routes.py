@@ -3,6 +3,7 @@ This is the API layer, connects HTTP requests → service/repository → DB
 """
 
 from fastapi import APIRouter, Depends, status
+from sqlalchemy.orm import Session
 
 from app.api.v1.preferences.schemas import (
     PreferencesCreate,
@@ -29,7 +30,7 @@ router = APIRouter(prefix="/preferences", tags=["preferences"])
 def create_preferences(
     body: PreferencesCreate,
     user=Depends(get_current_user),
-    db=Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     """
     Create new preferences record for a user
@@ -48,7 +49,7 @@ def update_preferences(
     preference_type: str,
     body: PreferencesUpdate,
     user=Depends(get_current_user),
-    db=Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     """
     Update preferences for a user
@@ -66,7 +67,7 @@ def update_preferences(
 )
 def get_preferences(
     user=Depends(get_current_user),
-    db=Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     """
     Return all preferences for the authenticated user.
@@ -80,7 +81,7 @@ def get_preferences(
 def remove_preferences(
     preference_type: str,
     user=Depends(get_current_user),
-    db=Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     """
     Delete a preference for a user
