@@ -5,7 +5,6 @@ Pydantic schema for basic request/response validations
 from typing import List, Literal
 
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy.orm import Mapped
 
 
 class PreferencesCreate(BaseModel):
@@ -17,15 +16,17 @@ class PreferencesCreate(BaseModel):
     mandatory: bool = False
     default_channel: Literal["email", "sms", "push"]  # enforce DB enum constraint
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class PreferencesResponse(BaseModel):
     """
     Validation response model after a successful create request
     """
 
-    preference_type: Mapped[str]
-    mandatory: Mapped[bool]
-    default_channel: Mapped[str]
+    preference_type: str
+    mandatory: bool
+    default_channel: str
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -57,3 +58,5 @@ class LoginRequest(BaseModel):
 
     username: str
     password: str
+
+    model_config = ConfigDict(from_attributes=True)

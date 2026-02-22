@@ -34,12 +34,12 @@ class UserPreferences(Base):
 
     __tablename__ = "user_preferences"
 
-    id = Column(BIGINT, primary_key=True, autoincrement=True)
-    user_id = Column(
+    id:Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
         BIGINT, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False
     )
-    preference_type = Column(String, nullable=False)
-    mandatory = Column(Boolean, nullable=False, default=False)
+    preference_type: Mapped[str] = mapped_column(String, nullable=False)
+    mandatory: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     # To ensure that we don't allow unwanted default channel e.g. fax
     # We will enforce a channel enum to enforce DB level validation
@@ -52,8 +52,8 @@ class UserPreferences(Base):
     default_channel: Mapped[str] = mapped_column(ChannelEnum, nullable=False)
 
     # Additional table columns to make queries easier at scale
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(
+    created_at = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
