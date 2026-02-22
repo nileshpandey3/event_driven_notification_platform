@@ -32,6 +32,10 @@ def apply_migrations():
         conn.commit()
 
     alembic_cfg = Config("alembic.ini")
+
+    # Make sure alembic uses test db
+    alembic_cfg.set_main_option("sqlalchemy.url", TEST_DATABASE_URL)
+
     command.upgrade(alembic_cfg, "head")
 
     yield
