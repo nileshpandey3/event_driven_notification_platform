@@ -9,7 +9,7 @@ from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine, text
 
-from app.core.config import DATABASE_URL
+from app.core.config import TEST_DATABASE_URL
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -19,7 +19,10 @@ def apply_migrations():
     Ensures CI and local DB schema are identical.
     """
 
-    engine = create_engine(DATABASE_URL)
+    assert "test" in TEST_DATABASE_URL, \
+        f"Refusing to wipe non-test database: {TEST_DATABASE_URL}"
+
+    engine = create_engine(TEST_DATABASE_URL)
 
     # Ensure database is fully reset
     # and migrated to head before running tests.
