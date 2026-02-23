@@ -13,6 +13,8 @@ env:
   POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
   POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
   DATABASE_URL: postgresql+psycopg://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@localhost:5432/${{secrets.POSTGRES_DB}}
+  TEST_DATABASE: test_preferences_db
+  TEST_DB_URL: postgresql+psycopg://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@localhost:5432/test_preferences_db
   TEST_USER: ${{ secrets.TEST_USER }}
   TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
   SECRET_KEY: ${{ secrets.SECRET_KEY }}
@@ -55,10 +57,21 @@ jobs:
           # Exclude all files under migrations from pylint
           pylint $(git ls-files '*.py')  | grep -v '^migrations/'    
 
+      - name: Create Test DB
+        run: |
+          echo "Creating test db if it doesn't exist"
+          PGPASSWORD=$POSTGRES_PASSWORD psql \
+            -h localhost \
+            -U $POSTGRES_USER \
+            -d $POSTGRES_DB \
+            -c "CREATE DATABASE ${{env.TEST_DATABASE}};" || echo "Test DB already exists"
+
       - name: Run Alembic migrations
         run: |
           # Apply all migrations
           alembic upgrade head
+        env:
+          DATABASE_URL: ${{env.TEST_DB_URL}}
 
       - name: Run Python Tests
         run: |

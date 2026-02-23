@@ -53,7 +53,7 @@ def login(data: LoginRequest, db=Depends(get_db)):
 
 
 @router.post("/logout")
-def logout(user_id: str = Depends(get_current_user)):
+def logout(user_id: int = Depends(get_current_user)):
     """
     Logout and clear the client session
     """

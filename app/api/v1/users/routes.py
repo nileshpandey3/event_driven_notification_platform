@@ -3,6 +3,7 @@ This is the API layer, connects HTTP requests → service/repository → DB
 """
 
 from fastapi import APIRouter, Depends, status
+from sqlalchemy.orm import Session
 
 from app.api.v1.users.schema import UsersCreate, UsersResponse
 from app.api.v1.users.service import add_user
@@ -18,7 +19,8 @@ router = APIRouter(prefix="/users", tags=["users"])
 )
 def create_user(
     body: UsersCreate,
-    db=Depends(get_db),
+    user=Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     """
     Create a new user record for a valid user

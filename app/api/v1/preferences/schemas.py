@@ -16,6 +16,8 @@ class PreferencesCreate(BaseModel):
     mandatory: bool = False
     default_channel: Literal["email", "sms", "push"]  # enforce DB enum constraint
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class PreferencesResponse(BaseModel):
     """
@@ -40,8 +42,13 @@ class UserPreferencesResponse(BaseModel):
 
 class PreferencesUpdate(BaseModel):
     """
-    TODO: Write validation
+    Schema to validate update preference body
     """
+
+    mandatory: bool
+    default_channel: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class LoginRequest(BaseModel):
@@ -51,3 +58,5 @@ class LoginRequest(BaseModel):
 
     username: str
     password: str
+
+    model_config = ConfigDict(from_attributes=True)
