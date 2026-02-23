@@ -2,21 +2,23 @@
 Preference handler service: auth, schema validation, and persistence.
 """
 
+from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
-from app.api.v1.preferences.schemas import PreferencesCreate, PreferencesResponse
+from app.api.v1.preferences.schemas import (
+    PreferencesCreate,
+    PreferencesResponse,
+    PreferencesUpdate,
+)
 from models.user_preferences import UserPreferences
 
 
-def get_user_preferences(user_id: int, db) -> list[PreferencesResponse]:
+def get_user_preferences(user_id, db: Session) -> list[PreferencesResponse]:
     """
     Return all preferences for the given user_id.
     """
-    rows = (
-        db.query(UserPreferences)
-        .filter(UserPreferences.user_id == user_id)
-        .all()
-    )
+    rows = db.query(UserPreferences).filter(UserPreferences.user_id == user_id).all()
     return [
         PreferencesResponse(
             preference_type=p.preference_type,
@@ -29,7 +31,7 @@ def get_user_preferences(user_id: int, db) -> list[PreferencesResponse]:
 
 def add_user_preference(
     body: PreferencesCreate,
-    db,
+    db: Session,
 ) -> PreferencesResponse:
     """
     Add a new preference for the user if it doesn't already exist.
@@ -64,7 +66,61 @@ def add_user_preference(
     )
 
 
-def update_user_preference():
+def update_user_preference(
+    preference_type,
+    body,
+    db: Session,
+) -> PreferencesUpdate:
     """
-    TODO: Add logic to handle the request and update db if existing record exists
+    Update preference for a user only if preferences already exist
+    else create the preference object using Upsert semantics
     """
+
+    pref = (
+        db.query(UserPreferences)
+        .filter(
+            UserPreferences.user_id == 1,
+            UserPreferences.preference_type == preference_type,
+        )
+        .first()
+    )
+
+    # UPDATE
+    if pref:
+        if body.mandatory is not None:
+            pref.mandatory = body.mandatory
+        if body.default_channel is not None:
+            pref.default_channel = body.default_channel
+
+    # CREATE
+    else:
+        pref = UserPreferences(
+            user_id=1,
+            preference_type=preference_type,
+            mandatory=body.mandatory,
+            default_channel=body.default_channel,
+        )
+        db.add(pref)
+
+    db.commit()
+    db.refresh(pref)
+    return pref
+
+
+def remove_user_preference(preference_type: str, db: Session):
+    """
+    Handler function to delete a users preference if they exist
+    """
+    existing = (
+        db.query(UserPreferences).filter(
+            UserPreferences.user_id == 1,
+            UserPreferences.preference_type == preference_type,
+        )
+    ).first()
+
+    if existing:
+        db.delete(existing)
+        db.commit()
+
+    else:
+        raise HTTPException(status_code=404, detail="Preference not found")

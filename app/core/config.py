@@ -35,3 +35,11 @@ DATABASE_URL = (
     f"{POSTGRES_PASSWORD}@{POSTGRES_HOST}:"
     f"{POSTGRES_PORT}/{POSTGRES_DB}"
 )
+
+# Test only DB
+TEST_DATABASE_URL = (
+    f"postgresql+psycopg://{POSTGRES_USER}:"
+    f"{POSTGRES_PASSWORD}@{POSTGRES_HOST}:"
+    f"{POSTGRES_PORT}/test_preferences_db"
+)
+
