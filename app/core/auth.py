@@ -4,7 +4,10 @@ Create and Decode Bearer Auth Token to authenticate a user for making API reques
 from alembic.util import status
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import jwt, JWTError
+from jose import jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from app.core.config import SECRET_KEY, ALGORITHMS
 from db.session import get_db
@@ -23,8 +26,8 @@ security = HTTPBearer()
 
 def get_current_user(
         credentials: HTTPAuthorizationCredentials = Depends(security),
-        db = Depends(get_db)
-):
+        db: Session = Depends(get_db)
+)-> Users:
     """
     Decode the access token in the request header and return the authenticated user
     """
@@ -32,25 +35,29 @@ def get_current_user(
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHMS])
-        user_id = payload.get("sub")
 
-        if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token")
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail='Token expired')
+    except InvalidTokenError:
+        raise HTTPException(status_code=401, detail='Invalid Token')
 
-        # Search from the user in DB
-        user = db.query(Users).filter(
-            Users.user_id == user_id
-        ).first()
+    try:
+        user_id = int(payload.get("sub"))
 
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail='User not found'
-            )
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=401, detail="Invalid token")
 
-        return user
+    # Search from the user in DB
+    user = db.scalar(
+        select(Users).where(
+        Users.user_id == user_id
+    ))
 
-    except JWTError as exc:
+    if not user:
         raise HTTPException(
-            status_code=401, detail="Token verification failed"
-        ) from exc
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+
+    return user
+

@@ -30,14 +30,12 @@ router = APIRouter(prefix="/preferences", tags=["preferences"])
 def create_preferences(
     body: PreferencesCreate,
     user=Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session=Depends(get_db),
 ):
     """
     Create new preferences record for a user
     """
-
-    assert user, f"User {user} a not a valid user or has not signed up for an account"
-    user_id = user.user_id
+    user_id = int(user.user_id)
     return add_user_preference(user_id,body, db)
 
 
@@ -55,8 +53,9 @@ def update_preferences(
     """
     Update preferences for a user
     """
-    assert user, f"User {user} a not a valid user or has not signed up for an account"
+    user_id = int(user.user_id)
     return update_user_preference(
+        user_id,
         preference_type,
         body,
         db,
@@ -73,8 +72,7 @@ def get_preferences(
     """
     Return all preferences for the authenticated user.
     """
-    assert user, f"User {user} is not a valid user or has not signed up for an account"
-    user_id = int(user)
+    user_id = user.user_id
     return get_user_preferences(user_id, db)
 
 
@@ -87,5 +85,5 @@ def remove_preferences(
     """
     Delete a preference for a user
     """
-    assert user, f"User {user} is not a valid user or has not signed up for an account"
-    return remove_user_preference(preference_type, db)
+    user_id = int(user.user_id)
+    return remove_user_preference(user_id, preference_type, db)

@@ -6,6 +6,8 @@ import datetime
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from app.api.v1.preferences.schemas import LoginRequest
 from app.core.auth import create_access_token, get_current_user
@@ -18,14 +20,14 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/login")
-def login(data: LoginRequest, db=Depends(get_db)):
+def login(data: LoginRequest, db: Session = Depends(get_db)):
     """
     Perform a simple auth flow for an existing user
     and issue an access token for api authentication
     """
 
     # Find user in DB
-    user = db.query(Users).filter(Users.username == data.username).first()
+    user = db.scalars(select(Users).where(Users.username == data.username)).first()
 
     if not user or user.password != data.password:
         raise HTTPException(
