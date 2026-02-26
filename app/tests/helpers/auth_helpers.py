@@ -1,7 +1,8 @@
 """
 Helpers to mock test function requirements
 """
-from unittest.mock import MagicMock
+
+from models import Users
 
 
 def override_get_current_user():
@@ -10,6 +11,6 @@ def override_get_current_user():
     required to make requests to protected endpoints
     """
     # Configure a mock valid user
-    user = MagicMock()
-    user.user_id = 1
-    return user
+    return Users(
+        user_id=1, username="test_user@example.com", password="secret_password"
+    )

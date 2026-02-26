@@ -1,6 +1,7 @@
 """
 Preference handler service: auth, schema validation, and persistence.
 """
+
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -52,19 +53,20 @@ def add_user_preference(
     try:
         db.commit()
         db.refresh(preference)
-        result = preference # Successful insert -> return newly added preferences
+        result = preference  # Successful insert -> return newly added preferences
     except IntegrityError:
         db.rollback()
-        existing = (
-            db.scalars(select(UserPreferences)
-            .where(
+        existing = db.scalars(
+            select(UserPreferences).where(
                 UserPreferences.user_id == user_id,
                 UserPreferences.preference_type == body.preference_type,
-            )).first()
-        )
+            )
+        ).first()
         if not existing:
             raise
-        result = existing # In case of error/duplicate -> return existing preference row
+        result = (
+            existing  # In case of error/duplicate -> return existing preference row
+        )
 
     return PreferencesResponse.model_validate(result)
 
@@ -80,14 +82,12 @@ def update_user_preference(
     else create the preference object using Upsert semantics
     """
 
-    pref = (
-        db.scalars(
-            select(UserPreferences).where(
-                UserPreferences.user_id == user_id,
-                UserPreferences.preference_type == preference_type
-            )
-        ).first()
-    )
+    pref = db.scalars(
+        select(UserPreferences).where(
+            UserPreferences.user_id == user_id,
+            UserPreferences.preference_type == preference_type,
+        )
+    ).first()
 
     # UPDATE
     if pref:
@@ -111,20 +111,17 @@ def update_user_preference(
     return pref
 
 
-def remove_user_preference(
-        user_id: int,
-        preference_type: str,
-        db: Session
-):
+def remove_user_preference(user_id: int, preference_type: str, db: Session):
     """
     Handler function to delete a users preference if they exist
     """
     existing = (
-        db.scalars(select(UserPreferences)
-                   .where(
-            UserPreferences.user_id == user_id,
-            UserPreferences.preference_type == preference_type
-        ))
+        db.scalars(
+            select(UserPreferences).where(
+                UserPreferences.user_id == user_id,
+                UserPreferences.preference_type == preference_type,
+            )
+        )
     ).first()
 
     if existing:

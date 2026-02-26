@@ -28,6 +28,7 @@ def create_user(
     """
     return add_user(body, db)
 
+
 # @router.get(
 #     "/{user_id}",
 #     response_model=UsersResponse,

@@ -42,4 +42,3 @@ TEST_DATABASE_URL = (
     f"{POSTGRES_PASSWORD}@{POSTGRES_HOST}:"
     f"{POSTGRES_PORT}/test_preferences_db"
 )
-

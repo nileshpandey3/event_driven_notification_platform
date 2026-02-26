@@ -18,6 +18,7 @@ from app.api.v1.preferences.service import (
 )
 from app.core.auth import get_current_user
 from db.session import get_db
+from models import Users
 
 router = APIRouter(prefix="/preferences", tags=["preferences"])
 
@@ -30,13 +31,13 @@ router = APIRouter(prefix="/preferences", tags=["preferences"])
 def create_preferences(
     body: PreferencesCreate,
     user=Depends(get_current_user),
-    db: Session=Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     """
     Create new preferences record for a user
     """
     user_id = int(user.user_id)
-    return add_user_preference(user_id,body, db)
+    return add_user_preference(user_id, body, db)
 
 
 @router.patch(
@@ -66,7 +67,7 @@ def update_preferences(
     "/", response_model=list[PreferencesResponse], status_code=status.HTTP_200_OK
 )
 def get_preferences(
-    user=Depends(get_current_user),
+    user: Users = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """

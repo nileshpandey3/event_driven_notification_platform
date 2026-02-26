@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 import pytest
 
 from app.core.auth import get_current_user
+from app.tests.helpers.auth_helpers import override_get_current_user
 from db.session import get_db
 from main import app
 
@@ -34,12 +35,7 @@ class TestRoutes:
         # Configure mock db session to be used by login tests
         cls.mock_db = MagicMock()
         app.dependency_overrides[get_db] = lambda: cls.mock_db
-
-        # Configure a mock valid user object
-        cls.user = MagicMock()
-        cls.user.user_id = 1
-        cls.user.username = "mocked_valid_user"
-        cls.user.password = "secret_test_password"
+        cls.mock_scalars = MagicMock()
 
     @pytest.mark.valid_login
     def test_valid_login(self, mock_create_access_token, mock_redis_client):
@@ -50,9 +46,10 @@ class TestRoutes:
         mock_create_access_token.return_value = "mocked.jwt.token"
 
         # Mock the db response for a valid existing user
-        self.mock_db.query().filter().first.return_value = self.user
+        self.mock_scalars.first.return_value = override_get_current_user()
+        self.mock_db.scalars.return_value = self.mock_scalars
 
-        payload = {"username": "mocked_valid_user", "password": "secret_test_password"}
+        payload = {"username": "test_user@example.com", "password": "secret_password"}
 
         response = client.post("/api/v1/auth/login", json=payload)
 
