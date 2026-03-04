@@ -27,18 +27,3 @@ def create_user(
     using a website or app
     """
     return add_user(body, db)
-
-
-# @router.get(
-#     "/{user_id}",
-#     response_model=UsersResponse,
-#     status_code=status.HTTP_200_OK
-# )
-# def get_user_by_id(
-#         user_id: int,
-#         db: Session = Depends(get_db())
-# ):
-#     """
-#     TODO
-#     """
-#     pass

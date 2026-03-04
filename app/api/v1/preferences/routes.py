@@ -36,7 +36,7 @@ def create_preferences(
     """
     Create new preferences record for a user
     """
-    user_id = int(user.user_id)
+    user_id = user.user_id
     return add_user_preference(user_id, body, db)
 
 
@@ -54,7 +54,7 @@ def update_preferences(
     """
     Update preferences for a user
     """
-    user_id = int(user.user_id)
+    user_id = user.user_id
     return update_user_preference(
         user_id,
         preference_type,
@@ -86,5 +86,5 @@ def remove_preferences(
     """
     Delete a preference for a user
     """
-    user_id = int(user.user_id)
+    user_id = user.user_id
     return remove_user_preference(user_id, preference_type, db)

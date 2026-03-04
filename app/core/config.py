@@ -19,8 +19,6 @@ def required(name: str):
     return value
 
 
-USERNAME = required("TEST_USER")
-PASSWORD = required("TEST_PASSWORD")
 ALGORITHMS = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 SECRET_KEY = required("SECRET_KEY")

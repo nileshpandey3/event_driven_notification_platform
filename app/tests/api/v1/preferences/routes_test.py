@@ -184,12 +184,6 @@ class TestUpdateUserPreferences:
         assert body["default_channel"] == self.preference_body["default_channel"]
 
         mock_update_user_preferences.assert_called_once()
-        # args, _ = mock_update_user_preferences.call_args
-        # ipdb.set_trace()
-        # assert args[0] == preference_type
-        # assert args[1].mandatory == self.preference_body["mandatory"]
-        # assert args[1].default_channel == self.preference_body["default_channel"]
-        # assert args[2] is not None
 
     @classmethod
     def teardown_class(cls):
