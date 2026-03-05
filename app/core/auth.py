@@ -58,15 +58,13 @@ def get_current_user(
 
     return user
 
-def require_admin(
-        user: Users = Depends(get_current_user)
-):
+
+def require_admin(user: Users = Depends(get_current_user)):
     """
     Function to validate and return an admin user
     """
-    if user.role != UserRoles.admin:
+    if user.role != UserRoles.ADMIN:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail='Admin privileges required'
+            status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required"
         )
     return user

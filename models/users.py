@@ -19,8 +19,8 @@ class UserRoles(
     """
     Use Enum data structure to avoid invalid values
     """
-    admin = 'admin'
-    user = 'user'
+    ADMIN = 'admin'
+    USER = 'user'
 
 # pylint: disable=not-callable
 class Users(Base):
@@ -39,7 +39,7 @@ class Users(Base):
     user_id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     password: Mapped[str] = mapped_column(Text, nullable=False)
-    role: Mapped[str] = mapped_column(Enum(UserRoles), nullable=False, default=UserRoles.user)
+    role: Mapped[str] = mapped_column(Enum(UserRoles), nullable=False, default=UserRoles.USER)
     created_at = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

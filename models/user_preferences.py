@@ -3,7 +3,6 @@ SQLAlchemy ORM model for the User preferences table
 """
 
 from sqlalchemy import (
-    Column,
     String,
     Boolean,
     DateTime,
