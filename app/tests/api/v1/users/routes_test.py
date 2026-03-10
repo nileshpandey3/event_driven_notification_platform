@@ -41,14 +41,14 @@ class TestUsersRoutes:
         users table
         """
 
-        user = {"user_id": 1}
-        mock_add_user.return_value = user
+        user = {"username": "test_user_1", "password": "test_password@123"}
+        mock_add_user.return_value = {"user_id": "2", "username": user["username"]}
 
         response = client.post("/api/v1/users/", json=user)
 
         assert response.status_code == HTTPStatus.CREATED
         body = response.json()
-        assert body["user_id"] == user["user_id"]
+        assert isinstance(body["user_id"], int)
 
     @classmethod
     def teardown_class(cls):

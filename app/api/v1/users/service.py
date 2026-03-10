@@ -2,6 +2,8 @@
 Users handler service: auth, schema validation, and persistence.
 """
 
+from fastapi import HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -16,22 +18,24 @@ def add_user(
     """
     Handler to add a new user to the Users table
     """
-    user = Users(user_id=body.user_id)
+    user = Users(username=body.username, password=body.password)
     db.add(user)
+
     try:
         db.commit()
         db.refresh(user)
-    except IntegrityError:
+
+    except IntegrityError as exc:
         db.rollback()
-        existing = (
-            db.query(Users)
-            .filter(
-                Users.user_id == body.user_id,
-            )
-            .first()
-        )
-        if not existing:
-            raise
+        # Check if username already exists
+        existing = db.scalar(select(Users).where(Users.username == user.username))
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="Username already exists"
+            ) from exc
+        raise
+
     return UsersResponse(
-        user_id=body.user_id,
+        user_id=user.user_id,
+        username=user.username,
     )

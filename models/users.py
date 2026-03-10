@@ -6,9 +6,9 @@ from sqlalchemy import (
     Column,
     DateTime,
     func,
-    BIGINT,
+    BIGINT, Text, CheckConstraint,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from db.base import Base
 
@@ -27,9 +27,16 @@ class Users(Base):
         return self.__class__.__name__
 
     __tablename__ = "users"
-    user_id = Column(BIGINT, primary_key=True)
-    created_at = Column(
+    user_id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    password: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    __table_args__ = (
+        CheckConstraint("length(username) >= 3", name="username_min_length"),
+        CheckConstraint("length(password) >= 8", name="password_min_length")
     )
 
     # cascade==all ensures preferences are deleted if user is deleted.

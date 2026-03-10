@@ -3,6 +3,7 @@ Preference handler service: auth, schema validation, and persistence.
 """
 
 from fastapi import HTTPException
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -18,7 +19,10 @@ def get_user_preferences(user_id, db: Session) -> list[PreferencesResponse]:
     """
     Return all preferences for the given user_id.
     """
-    rows = db.query(UserPreferences).filter(UserPreferences.user_id == user_id).all()
+    rows = db.scalars(
+        select(UserPreferences).where(UserPreferences.user_id == user_id)
+    ).all()
+
     return [
         PreferencesResponse(
             preference_type=p.preference_type,
@@ -30,6 +34,7 @@ def get_user_preferences(user_id, db: Session) -> list[PreferencesResponse]:
 
 
 def add_user_preference(
+    user_id: int,
     body: PreferencesCreate,
     db: Session,
 ) -> PreferencesResponse:
@@ -37,8 +42,9 @@ def add_user_preference(
     Add a new preference for the user if it doesn't already exist.
     Uses upsert semantics: on duplicate (user_id, preference_type), no-op and return existing.
     """
+
     preference = UserPreferences(
-        user_id=1,
+        user_id=user_id,
         preference_type=body.preference_type,
         mandatory=body.mandatory,
         default_channel=body.default_channel,
@@ -47,26 +53,26 @@ def add_user_preference(
     try:
         db.commit()
         db.refresh(preference)
+        result = preference  # Successful insert -> return newly added preferences
     except IntegrityError:
         db.rollback()
-        existing = (
-            db.query(UserPreferences)
-            .filter(
-                UserPreferences.user_id == 1,
+        existing = db.scalars(
+            select(UserPreferences).where(
+                UserPreferences.user_id == user_id,
                 UserPreferences.preference_type == body.preference_type,
             )
-            .first()
-        )
+        ).first()
         if not existing:
             raise
-    return PreferencesResponse(
-        preference_type=preference.preference_type,
-        mandatory=preference.mandatory,
-        default_channel=preference.default_channel,
-    )
+        result = (
+            existing  # In case of error/duplicate -> return existing preference row
+        )
+
+    return PreferencesResponse.model_validate(result)
 
 
 def update_user_preference(
+    user_id,
     preference_type,
     body,
     db: Session,
@@ -76,14 +82,12 @@ def update_user_preference(
     else create the preference object using Upsert semantics
     """
 
-    pref = (
-        db.query(UserPreferences)
-        .filter(
-            UserPreferences.user_id == 1,
+    pref = db.scalars(
+        select(UserPreferences).where(
+            UserPreferences.user_id == user_id,
             UserPreferences.preference_type == preference_type,
         )
-        .first()
-    )
+    ).first()
 
     # UPDATE
     if pref:
@@ -95,7 +99,7 @@ def update_user_preference(
     # CREATE
     else:
         pref = UserPreferences(
-            user_id=1,
+            user_id=user_id,
             preference_type=preference_type,
             mandatory=body.mandatory,
             default_channel=body.default_channel,
@@ -107,14 +111,16 @@ def update_user_preference(
     return pref
 
 
-def remove_user_preference(preference_type: str, db: Session):
+def remove_user_preference(user_id: int, preference_type: str, db: Session):
     """
     Handler function to delete a users preference if they exist
     """
     existing = (
-        db.query(UserPreferences).filter(
-            UserPreferences.user_id == 1,
-            UserPreferences.preference_type == preference_type,
+        db.scalars(
+            select(UserPreferences).where(
+                UserPreferences.user_id == user_id,
+                UserPreferences.preference_type == preference_type,
+            )
         )
     ).first()
 

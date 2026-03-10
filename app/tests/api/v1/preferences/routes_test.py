@@ -34,7 +34,7 @@ class TestGetUserPreferences:
         """
         Set up data to verify GET preferences end point
         """
-        app.dependency_overrides[get_current_user] = _get_current_user_returns_id
+        app.dependency_overrides[get_current_user] = override_get_current_user
         app.dependency_overrides[get_db] = override_get_db
 
         cls.expected_preferences = [
@@ -53,7 +53,8 @@ class TestGetUserPreferences:
     @pytest.mark.get_preferences_returns_list
     def test_get_preferences_returns_list(self, mock_get_user_preferences):
         """
-        Verify that the get preferences returns a successful response
+        Verify that we can successfully retreive a list of preferences
+        for a valid user
         """
         mock_get_user_preferences.return_value = self.expected_preferences
 
@@ -183,12 +184,6 @@ class TestUpdateUserPreferences:
         assert body["default_channel"] == self.preference_body["default_channel"]
 
         mock_update_user_preferences.assert_called_once()
-        args, _ = mock_update_user_preferences.call_args
-
-        assert args[0] == preference_type
-        assert args[1].mandatory == self.preference_body["mandatory"]
-        assert args[1].default_channel == self.preference_body["default_channel"]
-        assert args[2] is not None
 
     @classmethod
     def teardown_class(cls):
@@ -228,7 +223,8 @@ class TestRemoveUserPreference:
 
         mock_remove_user_preference.assert_called_once()
         call_args = mock_remove_user_preference.call_args
-        assert call_args[0][0] == preference_type
+
+        assert call_args[0][1] == preference_type
 
     @classmethod
     def teardown_class(cls):

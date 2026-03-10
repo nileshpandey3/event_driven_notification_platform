@@ -18,6 +18,7 @@ from app.api.v1.preferences.service import (
 )
 from app.core.auth import get_current_user
 from db.session import get_db
+from models import Users
 
 router = APIRouter(prefix="/preferences", tags=["preferences"])
 
@@ -35,9 +36,7 @@ def create_preferences(
     """
     Create new preferences record for a user
     """
-    assert user, f"User {user} a not a valid user or has not signed up for an account"
-
-    return add_user_preference(body, db)
+    return add_user_preference(user.user_id, body, db)
 
 
 @router.patch(
@@ -54,8 +53,8 @@ def update_preferences(
     """
     Update preferences for a user
     """
-    assert user, f"User {user} a not a valid user or has not signed up for an account"
     return update_user_preference(
+        user.user_id,
         preference_type,
         body,
         db,
@@ -66,15 +65,13 @@ def update_preferences(
     "/", response_model=list[PreferencesResponse], status_code=status.HTTP_200_OK
 )
 def get_preferences(
-    user=Depends(get_current_user),
+    user: Users = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """
     Return all preferences for the authenticated user.
     """
-    assert user, f"User {user} is not a valid user or has not signed up for an account"
-    user_id = int(user)
-    return get_user_preferences(user_id, db)
+    return get_user_preferences(user.user_id, db)
 
 
 @router.delete("/{preference_type}", status_code=status.HTTP_204_NO_CONTENT)
@@ -86,5 +83,4 @@ def remove_preferences(
     """
     Delete a preference for a user
     """
-    assert user, f"User {user} is not a valid user or has not signed up for an account"
-    return remove_user_preference(preference_type, db)
+    return remove_user_preference(user.user_id, preference_type, db)

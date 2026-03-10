@@ -19,8 +19,9 @@ def apply_migrations():
     Ensures CI and local DB schema are identical.
     """
 
-    assert "test" in TEST_DATABASE_URL, \
-        f"Refusing to wipe non-test database: {TEST_DATABASE_URL}"
+    assert (
+        "test" in TEST_DATABASE_URL
+    ), f"Refusing to wipe non-test database: {TEST_DATABASE_URL}"
 
     engine = create_engine(TEST_DATABASE_URL)
 

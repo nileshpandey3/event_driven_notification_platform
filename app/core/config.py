@@ -19,8 +19,6 @@ def required(name: str):
     return value
 
 
-USERNAME = required("TEST_USER")
-PASSWORD = required("TEST_PASSWORD")
 ALGORITHMS = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 SECRET_KEY = required("SECRET_KEY")
@@ -42,4 +40,3 @@ TEST_DATABASE_URL = (
     f"{POSTGRES_PASSWORD}@{POSTGRES_HOST}:"
     f"{POSTGRES_PORT}/test_preferences_db"
 )
-
