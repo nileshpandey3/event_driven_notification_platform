@@ -36,8 +36,7 @@ def create_preferences(
     """
     Create new preferences record for a user
     """
-    user_id = user.user_id
-    return add_user_preference(user_id, body, db)
+    return add_user_preference(user.user_id, body, db)
 
 
 @router.patch(
@@ -54,9 +53,8 @@ def update_preferences(
     """
     Update preferences for a user
     """
-    user_id = user.user_id
     return update_user_preference(
-        user_id,
+        user.user_id,
         preference_type,
         body,
         db,
@@ -73,8 +71,7 @@ def get_preferences(
     """
     Return all preferences for the authenticated user.
     """
-    user_id = user.user_id
-    return get_user_preferences(user_id, db)
+    return get_user_preferences(user.user_id, db)
 
 
 @router.delete("/{preference_type}", status_code=status.HTTP_204_NO_CONTENT)
@@ -86,5 +83,4 @@ def remove_preferences(
     """
     Delete a preference for a user
     """
-    user_id = user.user_id
-    return remove_user_preference(user_id, preference_type, db)
+    return remove_user_preference(user.user_id, preference_type, db)
