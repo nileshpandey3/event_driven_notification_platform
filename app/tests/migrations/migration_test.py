@@ -30,7 +30,6 @@ class TestMigrations:
 
         inspector = inspect(test_engine)
         existing_tables = inspector.get_table_names()
-        print("Tables in DB:", existing_tables)
 
         for table in required_tables:
             assert table in existing_tables

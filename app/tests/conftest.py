@@ -39,5 +39,5 @@ def apply_migrations():
 
     command.upgrade(alembic_cfg, "head")
 
-    yield engine
+    yield
     engine.dispose()
