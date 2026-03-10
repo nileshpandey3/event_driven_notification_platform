@@ -35,15 +35,12 @@ def create_user(
 @router.delete(
     "/{user_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(require_admin)]
 )
-def delete_user(
-    user_id: int,
-    db: Session = Depends(get_db),
-):
+def delete_user(user_id: int, db: Session = Depends(get_db)):
     """
     Delete a user from the Users table
     Only an Admin user can perform this action
     """
-    user = db.scalar(select(Users)).where(Users.user_id == user_id)
+    user = db.scalar(select(Users).where(Users.user_id == user_id))
 
     if not user:
         raise HTTPException(
