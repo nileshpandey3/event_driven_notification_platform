@@ -14,7 +14,7 @@ env:
   POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
   DATABASE_URL: postgresql+psycopg://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@localhost:5432/${{secrets.POSTGRES_DB}}
   TEST_DATABASE: test_preferences_db
-  TEST_DB_URL: postgresql+psycopg://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@localhost:5432/test_preferences_db
+  TEST_DATABASE_URL: postgresql+psycopg://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@localhost:5432/test_preferences_db
   TEST_USER: ${{ secrets.TEST_USER }}
   TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
   SECRET_KEY: ${{ secrets.SECRET_KEY }}
@@ -71,7 +71,7 @@ jobs:
           # Apply all migrations
           alembic upgrade head
         env:
-          DATABASE_URL: ${{env.TEST_DB_URL}}
+          DATABASE_URL: ${{env.TEST_DATABASE_URL}}
 
       - name: Run Python Tests
         run: |

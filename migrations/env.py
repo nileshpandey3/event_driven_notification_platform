@@ -1,16 +1,22 @@
+import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 from db.base import Base
+from models.users import Users
+from models.user_preferences import UserPreferences
 
-from app.core.config import DATABASE_URL
 
 config = context.config
 
 if config.config_file_name:
     fileConfig(config.config_file_name)
+
+# Use TEST_DATABASE_URL if set, otherwise default to DATABASE_URL
+DATABASE_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
+assert DATABASE_URL, "No database URL set!"
 
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 

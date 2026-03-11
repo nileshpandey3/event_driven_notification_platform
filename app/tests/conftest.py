@@ -23,13 +23,13 @@ def apply_migrations():
         "test" in TEST_DATABASE_URL
     ), f"Refusing to wipe non-test database: {TEST_DATABASE_URL}"
 
-    engine = create_engine(TEST_DATABASE_URL)
+    engine = create_engine(TEST_DATABASE_URL, future=True)
 
     # Ensure database is fully reset
     # and migrated to head before running tests.
     with engine.connect() as conn:
         conn.execute(text("DROP SCHEMA public CASCADE"))
-        conn.execute(text("CREATE SCHEMA public"))
+        conn.execute(text("CREATE SCHEMA public AUTHORIZATION app_user"))
         conn.commit()
 
     alembic_cfg = Config("alembic.ini")

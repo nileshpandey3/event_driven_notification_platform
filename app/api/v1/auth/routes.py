@@ -38,6 +38,7 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     payload = {
         "sub": str(user.user_id),
         "username": user.username,
+        "role": user.role,
         "exp": datetime.datetime.utcnow()
         + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     }

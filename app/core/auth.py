@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from app.core.config import SECRET_KEY, ALGORITHMS
 from db.session import get_db
 from models import Users
+from models.users import UserRoles
 
 
 def create_access_token(payload: dict):
@@ -55,4 +56,15 @@ def get_current_user(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
+    return user
+
+
+def require_admin(user: Users = Depends(get_current_user)):
+    """
+    Function to validate and return an admin user
+    """
+    if user.role != UserRoles.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required"
+        )
     return user

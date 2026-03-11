@@ -5,7 +5,7 @@ Verify that migration has successfully resulted in the expected updates to the D
 import pytest
 from sqlalchemy import inspect
 
-from db.engine import engine
+from db.engine import test_engine
 
 
 @pytest.mark.migrations
@@ -28,7 +28,7 @@ class TestMigrations:
         """
         required_tables = ["users", "user_preferences"]
 
-        inspector = inspect(engine)
+        inspector = inspect(test_engine)
         existing_tables = inspector.get_table_names()
 
         for table in required_tables:
