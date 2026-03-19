@@ -14,4 +14,4 @@ alembic>=1.18.1
 psycopg==3.3.2
 mypy>=1.19.1
 kafka-python==2.3.0
-
+structlog==25.5.0

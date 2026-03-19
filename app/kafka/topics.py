@@ -1,12 +1,14 @@
 from kafka.admin import KafkaAdminClient, NewTopic
 from kafka.errors import TopicAlreadyExistsError
 
+from app.core.config import TOPIC
+
 admin_client = KafkaAdminClient(
     bootstrap_servers="localhost:9092", client_id="topic_creator"
 )
 
 topic = NewTopic(
-    name="notification-trigger-events",
+    name=TOPIC,
     num_partitions=3,
     replication_factor=1,
     topic_configs={"retention.ms": "604800000"},
@@ -18,7 +20,7 @@ try:
     print(f"Topic {topic.name} created successfully")
 
 except TopicAlreadyExistsError:
-    print(f"Topic already exists, skipping creation")
+    print("Topic already exists, skipping creation")
 
 except Exception as e:
     print(f"Error creating Topic: {e}")
@@ -31,5 +33,13 @@ try:
 
 except Exception as e:
     print(f"Error listing topics: {e}")
+
+# Describe topics
+try:
+    topics = admin_client.describe_topics(topics=[topic])
+    print(f"Topic description: {topics}")
+
+except Exception as e:
+    print(f"Error describing topics: {e}")
 
 admin_client.close()
