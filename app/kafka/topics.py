@@ -1,5 +1,9 @@
+"""
+Module to create kafka topics
+"""
+
 from kafka.admin import KafkaAdminClient, NewTopic
-from kafka.errors import TopicAlreadyExistsError
+from kafka.errors import TopicAlreadyExistsError, KafkaError
 
 from app.core.config import TOPIC
 
@@ -22,24 +26,21 @@ try:
 except TopicAlreadyExistsError:
     print("Topic already exists, skipping creation")
 
-except Exception as e:
-    print(f"Error creating Topic: {e}")
-
 # List created topics
 try:
     topics = admin_client.list_topics()
     for t in topics:
         print(f'Topic name: "{t}" exists in the cluster')
 
-except Exception as e:
-    print(f"Error listing topics: {e}")
+except KafkaError as e:
+    print(f"Encountered kafka error: {e}")
 
 # Describe topics
 try:
     topics = admin_client.describe_topics(topics=[topic])
     print(f"Topic description: {topics}")
 
-except Exception as e:
-    print(f"Error describing topics: {e}")
+except KafkaError as e:
+    print(f"Encountered kafka error: {e}")
 
 admin_client.close()

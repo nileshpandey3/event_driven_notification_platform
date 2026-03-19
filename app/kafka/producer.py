@@ -30,7 +30,7 @@ def produce_events(topic: str, event: NotificationEvent):
         metadata = future.get(timeout=10)
         print(f"Event sent successfully to topic: {metadata.topic}")
     except Exception as e:
-        raise RuntimeError(f'Failed to send event: {e}') from e
+        raise RuntimeError(f"Failed to send event: {e}") from e
 
 
 def main():
