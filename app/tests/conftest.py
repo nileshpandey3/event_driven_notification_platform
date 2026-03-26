@@ -8,6 +8,7 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine, text
+from sqlalchemy_utils import create_database, database_exists
 
 from app.core.config import TEST_DATABASE_URL
 
@@ -22,6 +23,10 @@ def apply_migrations():
     assert (
         "test" in TEST_DATABASE_URL
     ), f"Refusing to wipe non-test database: {TEST_DATABASE_URL}"
+
+    # Create Test db if it doesn't exist already
+    if not database_exists(TEST_DATABASE_URL):
+        create_database(TEST_DATABASE_URL)
 
     engine = create_engine(TEST_DATABASE_URL, future=True)
 
