@@ -49,6 +49,7 @@ Formatting:
 black "path to module/directory"
 ```
 
-
-### TODO: Explain the Project structure and flow 
-### TODO: Explain how to test?
+### How to test?
+- To run all the tests locally in your terminal follow the below steps:
+- Set Test db URL env var in your shell by `export TEST_DATABASE_URL=postgresql+psycopg://app_user:strong_password@localhost:5432/test_preferences_db`
+- Run `python -m pytest -s`

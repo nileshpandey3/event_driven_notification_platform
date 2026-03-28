@@ -5,6 +5,7 @@ on:
     branches: [ "main"]
   pull_request:
     branches: [ "main" ]
+    types: [opened, synchronize, reopened]
 
 env:
   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
