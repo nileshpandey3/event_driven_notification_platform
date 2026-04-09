@@ -40,7 +40,7 @@ def main():
     event = NotificationEvent(
         event_id=str(uuid4()),
         event_type="SECURITY_ALERT",
-        user_id="3",
+        user_id=3,
         occurred_at=datetime.now(),
         source_service="auth_service",
         schema_version="1",

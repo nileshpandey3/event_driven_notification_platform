@@ -4,15 +4,18 @@ Module to handle user authentication for calling the protected endpoints
 
 import datetime
 from datetime import timedelta
+from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.v1.preferences.schemas import LoginRequest
+from app.contracts.notification_events import NotificationEvent
 from app.core.auth import create_access_token, get_current_user
-from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
+from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, TOPIC
 from app.core.redis_client import redis_client
+from app.kafka.producer import produce_events
 from db.session import get_db
 from models import Users
 
@@ -62,3 +65,28 @@ def logout(user_id: int = Depends(get_current_user)):
     """
     redis_client.delete(f"session:{user_id}")
     return {"message": "Logged out successfully"}
+
+
+@router.post("/password_reset")
+def password_reset(user_id: int, db: Session = Depends(get_db)):
+    """
+    Trigger a password reset email for an existing user
+    """
+    user = db.scalar(select(Users).where(Users.user_id == user_id))
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Not an existing user, please create a new user account",
+        )
+
+    event = NotificationEvent(
+        event_id=str(uuid4()),
+        event_type="PASSWORD_RESET",
+        user_id=user_id,
+        occurred_at=datetime.datetime.now(),
+        source_service="auth_service",
+        schema_version="1",
+    )
+    # Trigger kafka producer
+    produce_events(TOPIC, event)
