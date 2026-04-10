@@ -19,6 +19,7 @@ env:
   TEST_USER: ${{ secrets.TEST_USER }}
   TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
   SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
 jobs:
   ci_pipeline:
