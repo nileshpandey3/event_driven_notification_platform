@@ -5,24 +5,35 @@ Module to define kafka producer logic
 from datetime import datetime
 from uuid import uuid4
 
+from functools import lru_cache
 from kafka import KafkaProducer
 
 from app.contracts.notification_events import NotificationEvent
 from app.core.config import TOPIC
 
-producer = KafkaProducer(
-    bootstrap_servers="localhost:9092",
-    client_id="event_producer",
-    key_serializer=lambda k: k.encode("utf-8"),
-    value_serializer=lambda v: v.model_dump_json().encode("utf-8"),
-)
+
+@lru_cache
+def get_producer():
+    """
+    Provides a cached singleton KafkaProducer instance.
+    Uses functools.lru_cache to ensure the producer is initialized once and reused
+    throughout the application lifecycle. This prevents repeated Kafka connections,
+    reduces overhead, and improves testability by avoiding global state.
+    """
+    return KafkaProducer(
+        bootstrap_servers="localhost:9092",
+        client_id="event_producer",
+        key_serializer=lambda k: k.encode("utf-8"),
+        value_serializer=lambda v: v.model_dump_json().encode("utf-8"),
+    )
 
 
 def produce_events(topic: str, event: NotificationEvent):
     """
     kafka producer logic to publish events
     """
-    future = producer.send(
+    event_producer = get_producer()
+    future = event_producer.send(
         topic=topic, key=f"{event.user_id}:{event.event_type}", value=event
     )
 

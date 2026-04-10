@@ -2,14 +2,37 @@
 Module to define kafka consumer logic
 """
 
+import datetime
+import json
+
 import structlog
 from kafka import KafkaConsumer
 from kafka.errors import KafkaError
 
 from app.contracts.notification_events import NotificationEvent
 from app.core.config import TOPIC
+from app.core.redis_client import redis_client
 from app.handlers.event_router import EVENT_HANDLER_MAP
 
+IDEMPOTENCY_TTL = 86400  # 1 day
+
+
+def claim_event(event_id: str) -> bool:
+    """
+    Idempotency Check for incoming events:
+    Returns True if event is new, False if duplicate.
+    """
+    return redis_client.set(
+        f"event: {event_id}",
+        json.dumps(
+            {"status": "processed", "timestamp": datetime.datetime.utcnow().isoformat()}
+        ),
+        nx=True,
+        ex=IDEMPOTENCY_TTL,
+    )
+
+
+# Configure a logger
 structlog.configure(
     processors=[
         structlog.processors.TimeStamper(fmt="iso"),
@@ -22,7 +45,7 @@ logger = structlog.getLogger("notification_consumer")
 
 def consume_events(topic: str):
     """
-    Consume and log events from the producer for a topic
+    Consumer function to consume and log events from the producer
     """
     consumer = KafkaConsumer(
         topic,
@@ -47,6 +70,13 @@ def consume_events(topic: str):
                     "occurred_at": event.occurred_at,
                 },
             )
+
+            # Idempotency check before sending notification
+            if not claim_event(event_id=event.event_id):
+                logger.warning(
+                    "Skipping duplicate event", extra={"event id": event.event_id}
+                )
+                continue
 
             # Route event to the respective handler
             event_handler = EVENT_HANDLER_MAP.get(str(event.event_type))
