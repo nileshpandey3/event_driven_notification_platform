@@ -21,7 +21,7 @@ def get_producer():
     reduces overhead, and improves testability by avoiding global state.
     """
     return KafkaProducer(
-        bootstrap_servers="localhost:9092",
+        bootstrap_servers="broker:9092",
         client_id="event_producer",
         key_serializer=lambda k: k.encode("utf-8"),
         value_serializer=lambda v: v.model_dump_json().encode("utf-8"),

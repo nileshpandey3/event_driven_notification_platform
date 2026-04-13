@@ -23,7 +23,7 @@ def claim_event(event_id: str) -> bool:
     Returns True if event is new, False if duplicate.
     """
     return redis_client.set(
-        f"event: {event_id}",
+        f"event:{event_id}",
         json.dumps(
             {"status": "processed", "timestamp": datetime.datetime.utcnow().isoformat()}
         ),
@@ -49,7 +49,7 @@ def consume_events(topic: str):
     """
     consumer = KafkaConsumer(
         topic,
-        bootstrap_servers="localhost:9092",
+        bootstrap_servers="broker:9092",
         client_id="event_consumer",
         auto_offset_reset="earliest",
         key_deserializer=lambda k: k.decode() if k else None,
@@ -103,12 +103,8 @@ def consume_events(topic: str):
             print(f"Unexpected Error while processing message: {e}")
 
 
-def main():
+def start_consumer():
     """
-    main function to execute as a standalone service
+    Function to start consumer service for a topic
     """
     consume_events(TOPIC)
-
-
-if __name__ == "__main__":
-    main()

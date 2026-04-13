@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.api.v1.auth.schema import PasswordReset, PasswordResetResponse
 from app.api.v1.preferences.schemas import LoginRequest
 from app.contracts.notification_events import NotificationEvent
 from app.core.auth import create_access_token, get_current_user
@@ -67,12 +68,21 @@ def logout(user_id: int = Depends(get_current_user)):
     return {"message": "Logged out successfully"}
 
 
-@router.post("/password_reset")
-def password_reset(user_id: int, db: Session = Depends(get_db)):
+@router.post(
+    "/password_reset",
+    response_model=PasswordResetResponse,
+    status_code=status.HTTP_200_OK,
+)
+def password_reset(
+    body: PasswordReset,
+    db: Session = Depends(get_db),
+):
     """
     Trigger a password reset email for an existing user
     """
-    user = db.scalar(select(Users).where(Users.user_id == user_id))
+
+    # Check if the user exists in our db
+    user = db.scalar(select(Users).where(Users.username == body.username))
 
     if not user:
         raise HTTPException(
@@ -83,10 +93,15 @@ def password_reset(user_id: int, db: Session = Depends(get_db)):
     event = NotificationEvent(
         event_id=str(uuid4()),
         event_type="PASSWORD_RESET",
-        user_id=user_id,
+        user_id=user.user_id,
+        username=body.username,
         occurred_at=datetime.datetime.now(),
         source_service="auth_service",
         schema_version="1",
     )
     # Trigger kafka producer
     produce_events(TOPIC, event)
+
+    return PasswordResetResponse(
+        message=f"Password reset link successfully sent for user: {body.username}"
+    )
