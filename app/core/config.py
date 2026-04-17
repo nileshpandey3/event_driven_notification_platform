@@ -41,3 +41,6 @@ TEST_DATABASE_URL = (
     f"{POSTGRES_PORT}/test_preferences_db"
 )
 TOPIC = "notification-trigger-events"
+
+# Email service (Resend) API key
+RESEND_API_KEY = required("RESEND_API_KEY")

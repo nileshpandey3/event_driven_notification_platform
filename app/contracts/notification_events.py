@@ -18,7 +18,8 @@ class NotificationEvent(BaseModel):
     event_type: Literal[
         "PASSWORD_RESET", "SECURITY_ALERT", "PAYMENT_CONFIRMED", "SUBSCRIPTION_RENEWAL"
     ]
-    user_id: str
+    user_id: int
+    username: str
     occurred_at: datetime
     source_service: str
     schema_version: str = Field(default="1")

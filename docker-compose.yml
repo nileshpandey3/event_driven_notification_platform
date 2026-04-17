@@ -14,6 +14,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  migration:
+    build: .
+    container_name: fastapi-migration
+    depends_on:
+      - db
+    env_file:
+      - .env
+    command: ["alembic", "upgrade", "head"]
+
   redis:
     image: redis:7
     container_name: redis-cache
@@ -22,16 +31,21 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+
   web:
     build: .
     container_name: fastapi-app
     depends_on:
       - db
       - redis
+      - migration
     ports:
       - "8000:80"
     volumes:
       - .:/app
+    env_file:
+      - .env
+
   broker:
     image: apache/kafka:latest
     container_name: broker
@@ -43,7 +57,7 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
 
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092
 
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:9093
@@ -52,6 +66,17 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+  consumer:
+    build: .
+    container_name: kafka-consumer
+    depends_on:
+      - broker
+      - redis
+    env_file:
+      - .env
+    command: [ "python", "-m", "app.kafka_consumer_worker" ]
+    restart: always
 
 volumes:
   postgres_data:
