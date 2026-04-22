@@ -5,6 +5,9 @@ A unified, reliable mechanism for delivering user notifications from across diff
 Example design for one of the API's `/preferences`
 ![rest_api_design_example](rest_api.jpg)
 
+### EVENT STREAMING DESIGN
+![kafka_event_streaming_example](kafka_design.png))
+
 #### AUTHENTICATION DESIGN FOR MAKING THE ENDPOINTS PROTECTED
     
 - I have used `python-jose` lib as the authentication provider and Redis as the centralized credentials store
@@ -22,7 +25,6 @@ Example design for one of the API's `/preferences`
 - Redis as a credential store
 - AWS DynamoDB as the data store
 - Kafka as event streaming messaging system
-- #TODO: Add more as we develop
 
 
 
